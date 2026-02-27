@@ -2,6 +2,8 @@ package com.hitachi.confirmnfc
 
 import android.content.Intent
 import android.nfc.NfcAdapter
+import android.nfc.Tag
+import android.os.Build
 import android.util.Log
 import android.os.Bundle
 import androidx.activity.viewModels
@@ -17,6 +19,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.i(TAG, "onCreate called, intentAction=${intent?.action}")
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setupTopBar()
@@ -25,11 +28,18 @@ class MainActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        setIntent(intent)
+        Log.i(TAG, "onNewIntent called, intentAction=${intent.action}")
         handleNfcIntent(intent)
     }
 
     private fun handleNfcIntent(intent: Intent?) {
-        if (intent == null) return
+        if (intent == null) {
+            Log.w(TAG, "handleNfcIntent skipped because intent is null")
+            return
+        }
+
+        Log.i(TAG, "handleNfcIntent start, action=${intent.action}")
 
         if (
             intent.action == NfcAdapter.ACTION_TAG_DISCOVERED ||
@@ -37,8 +47,20 @@ class MainActivity : AppCompatActivity() {
             intent.action == NfcAdapter.ACTION_NDEF_DISCOVERED
         ) {
             Log.i(TAG, "NFC intent action=${intent.action}, extras=${intent.extras?.keySet()?.joinToString()}")
-            val tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG, android.nfc.Tag::class.java)
+            val tag = getTagFromIntent(intent)
+            Log.i(TAG, "Parsed NFC tag success=${tag != null}")
             viewModel.onTagDetected(tag)
+        } else {
+            Log.i(TAG, "Intent is not NFC related, ignored. action=${intent.action}")
+        }
+    }
+
+    private fun getTagFromIntent(intent: Intent): Tag? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(NfcAdapter.EXTRA_TAG, Tag::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)
         }
     }
 
