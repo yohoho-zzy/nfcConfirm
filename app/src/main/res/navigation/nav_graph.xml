@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/loginFragment">
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.example.nfcconfirm.LoginFragment"
+        android:label="ログイン画面">
+        <action
+            android:id="@+id/action_loginFragment_to_nfcConfirmFragment"
+            app:destination="@id/nfcConfirmFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nfcConfirmFragment"
+        android:name="com.example.nfcconfirm.NfcConfirmFragment"
+        android:label="NFC確認画面" />
+
+</navigation>
