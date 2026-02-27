@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.nfcconfirm"
+    namespace = "com.hitachi.confirmnfc"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.nfcconfirm"
+        applicationId = "com.hitachi.confirmnfc"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
