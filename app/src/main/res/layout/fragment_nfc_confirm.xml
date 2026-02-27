@@ -32,7 +32,7 @@
         android:layout_height="wrap_content"
         android:background="#2E4256"
         android:padding="8dp"
-        android:text="NFCをかざしてください"
+        android:text="@string/nfc_instruction"
         android:textAlignment="center"
         android:textColor="@android:color/white"
         android:textSize="26sp"
@@ -53,7 +53,7 @@
             <TextView
                 android:layout_width="92dp"
                 android:layout_height="wrap_content"
-                android:text="名称"
+                android:text="@string/label_name"
                 android:textColor="#1F2833"
                 android:textSize="22sp"
                 android:textStyle="bold" />
@@ -75,7 +75,7 @@
             <TextView
                 android:layout_width="92dp"
                 android:layout_height="wrap_content"
-                android:text="得意先コード"
+                android:text="@string/label_customer_code"
                 android:textColor="#1F2833"
                 android:textSize="22sp"
                 android:textStyle="bold" />
@@ -98,7 +98,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="住所"
+            android:text="@string/label_address"
             android:textColor="#1F2833"
             android:textSize="22sp"
             android:textStyle="bold" />
@@ -118,7 +118,7 @@
             <TextView
                 android:layout_width="82dp"
                 android:layout_height="wrap_content"
-                android:text="NFC1"
+                android:text="@string/label_nfc1"
                 android:textColor="#1F2833"
                 android:textSize="22sp" />
 
@@ -128,7 +128,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="#EFEFEF"
-                android:text="------"
+                android:text="@string/serial_default"
                 android:textSize="18sp" />
         </LinearLayout>
 
@@ -141,7 +141,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="NFC2"
+            android:text="@string/label_nfc2"
             android:textColor="#1F2833"
             android:textSize="22sp" />
 
@@ -154,7 +154,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="NFC3"
+            android:text="@string/label_nfc3"
             android:textColor="#1F2833"
             android:textSize="22sp" />
 

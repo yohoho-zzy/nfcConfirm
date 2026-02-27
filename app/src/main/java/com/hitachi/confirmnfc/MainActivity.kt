@@ -42,12 +42,12 @@ class MainActivity : AppCompatActivity() {
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
                 R.id.loginFragment -> {
-                    binding.topBarTitle.text = "ログイン"
+                    binding.topBarTitle.text = getString(R.string.login_title)
                     binding.backButton.isVisible = false
                 }
 
                 R.id.nfcConfirmFragment -> {
-                    binding.topBarTitle.text = "NFC確認"
+                    binding.topBarTitle.text = getString(R.string.top_title_nfc_confirm)
                     binding.backButton.isVisible = true
                 }
 

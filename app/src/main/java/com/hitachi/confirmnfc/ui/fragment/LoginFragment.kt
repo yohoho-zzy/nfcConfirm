@@ -32,7 +32,7 @@ class LoginFragment : Fragment() {
         binding.loginButton.setOnClickListener {
             val userId = binding.userIdInput.text?.toString()?.trim().orEmpty()
             if (userId.isBlank()) {
-                binding.loginMessage.text = "ユーザーIDを入力してください。"
+                binding.loginMessage.text = getString(R.string.input_user_id_required)
                 return@setOnClickListener
             }
             startLogin()
@@ -47,7 +47,7 @@ class LoginFragment : Fragment() {
                     binding.loginMessage.text = ""
                 }
                 is LoginState.Success -> {
-                    binding.loginMessage.text = "ログイン成功"
+                    binding.loginMessage.text = getString(R.string.login_success)
                     findNavController().navigate(R.id.action_loginFragment_to_nfcConfirmFragment)
                 }
                 is LoginState.Error -> {
