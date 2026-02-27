@@ -85,6 +85,12 @@ class LoginFragment : Fragment() {
             }
         }
 
+
+        viewModel.loginFormResetSignal.observe(viewLifecycleOwner) {
+            binding.userIdInput.setText("")
+            binding.passwordInput.setText("")
+            binding.loginMessage.text = ""
+        }
         viewModel.progressMessage.observe(viewLifecycleOwner) { message ->
             val existing = childFragmentManager.findFragmentByTag(ProgressDialogFragment.TAG)
             if (message.isNullOrBlank()) {

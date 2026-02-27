@@ -44,6 +44,12 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val _progressMessage = MutableLiveData<String?>(null)
     val progressMessage: LiveData<String?> = _progressMessage
 
+    private val _notFoundDialogMessage = MutableLiveData<String?>(null)
+    val notFoundDialogMessage: LiveData<String?> = _notFoundDialogMessage
+
+    private val _loginFormResetSignal = MutableLiveData(0)
+    val loginFormResetSignal: LiveData<Int> = _loginFormResetSignal
+
     private var csvRecords: List<CsvRecord> = emptyList()
 
     fun login(userId: String, phoneNumber: String) {
@@ -92,17 +98,22 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                 record.columns.any { column -> column.equals(serial, ignoreCase = true) }
             }
 
-            _nfcMessage.value = if (match != null) {
+            if (match != null) {
                 Log.i(TAG, "NFC serial matched with CSV record=${match.columns.joinToString()}")
-                getApplication<Application>().getString(
+                _nfcMessage.value = getApplication<Application>().getString(
                     R.string.match_success,
                     match.columns.joinToString(" / ")
                 )
             } else {
                 Log.w(TAG, "NFC serial not found in CSV records")
-                getApplication<Application>().getString(R.string.not_registered)
+                _nfcMessage.value = getApplication<Application>().getString(R.string.login_success_nfc_prompt)
+                _notFoundDialogMessage.value = getApplication<Application>().getString(R.string.not_registered)
             }
         }
+    }
+
+    fun onNotFoundDialogShown() {
+        _notFoundDialogMessage.value = null
     }
 
     private fun vibrateOnTagDetected() {
@@ -166,6 +177,8 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         _nfcMessage.value = getApplication<Application>().getString(R.string.nfc_instruction)
         _serialText.value = getApplication<Application>().getString(R.string.serial_default)
         _progressMessage.value = null
+        _notFoundDialogMessage.value = null
+        _loginFormResetSignal.value = (_loginFormResetSignal.value ?: 0) + 1
     }
 
     companion object {
