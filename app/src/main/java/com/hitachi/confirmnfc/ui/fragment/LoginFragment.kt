@@ -1,33 +1,21 @@
-package com.example.nfcconfirm
+package com.hitachi.confirmnfc.ui.fragment
 
-import android.Manifest
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import com.example.nfcconfirm.databinding.FragmentLoginBinding
+import com.hitachi.confirmnfc.R
+import com.hitachi.confirmnfc.databinding.FragmentLoginBinding
+import com.hitachi.confirmnfc.ui.viewmodel.AppViewModel
+import com.hitachi.confirmnfc.ui.viewmodel.LoginState
 
 class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
     private val viewModel: AppViewModel by activityViewModels()
-
-    private val permissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        val granted = permissions.values.all { it }
-        if (granted) {
-            startLogin()
-        } else {
-            binding.loginMessage.text = "電話番号の権限が必要です。"
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,7 +35,7 @@ class LoginFragment : Fragment() {
                 binding.loginMessage.text = "ユーザーIDを入力してください。"
                 return@setOnClickListener
             }
-            checkPermissionAndLogin()
+            startLogin()
         }
 
         viewModel.loginState.observe(viewLifecycleOwner) { state ->
@@ -70,29 +58,6 @@ class LoginFragment : Fragment() {
                     binding.loginMessage.text = state.message
                 }
             }
-        }
-    }
-
-    private fun checkPermissionAndLogin() {
-        val context = requireContext()
-        val phoneStateGranted = ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.READ_PHONE_STATE
-        ) == PackageManager.PERMISSION_GRANTED
-        val phoneNumberGranted = ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.READ_PHONE_NUMBERS
-        ) == PackageManager.PERMISSION_GRANTED
-
-        if (phoneStateGranted && phoneNumberGranted) {
-            startLogin()
-        } else {
-            permissionLauncher.launch(
-                arrayOf(
-                    Manifest.permission.READ_PHONE_STATE,
-                    Manifest.permission.READ_PHONE_NUMBERS
-                )
-            )
         }
     }
 

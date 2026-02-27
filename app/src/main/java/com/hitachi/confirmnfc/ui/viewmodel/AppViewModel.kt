@@ -1,14 +1,13 @@
-package com.example.nfcconfirm
+package com.hitachi.confirmnfc.ui.viewmodel
 
-import android.annotation.SuppressLint
 import android.app.Application
-import android.content.Context
 import android.nfc.Tag
-import android.telephony.TelephonyManager
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.hitachi.confirmnfc.data.LoginRepository
+import com.hitachi.confirmnfc.model.CsvRecord
 import kotlinx.coroutines.launch
 
 sealed class LoginState {
@@ -24,7 +23,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val _loginState = MutableLiveData<LoginState>(LoginState.Idle)
     val loginState: LiveData<LoginState> = _loginState
 
-    private val _nfcMessage = MutableLiveData("カードをタップしてください。")
+    private val _nfcMessage = MutableLiveData("カードをかざしてください")
     val nfcMessage: LiveData<String> = _nfcMessage
 
     private val _serialText = MutableLiveData("------")
@@ -33,31 +32,19 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     private var csvRecords: List<CsvRecord> = emptyList()
 
     fun login(userId: String) {
-        val appContext = getApplication<Application>()
-        val phoneNumber = readPhoneNumber(appContext)
-        if (phoneNumber.isBlank()) {
-            _loginState.value = LoginState.Error("電話番号を取得できません。権限とSIM状態を確認してください。")
-            return
-        }
+        val temporaryPhoneNumber = "09012345678"
 
         viewModelScope.launch {
             _loginState.value = LoginState.Loading
-            val result = repository.fetchCsv(userId, phoneNumber)
+            val result = repository.fetchCsv(userId, temporaryPhoneNumber)
             result.onSuccess {
                 csvRecords = it
                 _loginState.value = LoginState.Success(it)
-                _nfcMessage.value = "ログイン成功。カードをタップしてください。"
+                _nfcMessage.value = "ログイン成功。NFCをかざしてください"
             }.onFailure {
                 _loginState.value = LoginState.Error(it.message ?: "ログインに失敗しました。")
             }
         }
-    }
-
-    @SuppressLint("HardwareIds", "MissingPermission")
-    private fun readPhoneNumber(context: Context): String {
-        val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-        val number = telephonyManager.line1Number ?: ""
-        return number.trim()
     }
 
     fun onTagDetected(tag: Tag?) {
@@ -86,7 +73,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     fun logout() {
         csvRecords = emptyList()
         _loginState.value = LoginState.Idle
-        _nfcMessage.value = "カードをタップしてください。"
+        _nfcMessage.value = "カードをかざしてください"
         _serialText.value = "------"
     }
 }

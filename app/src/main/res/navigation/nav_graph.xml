@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.example.nfcconfirm.LoginFragment"
+        android:name="com.hitachi.confirmnfc.ui.fragment.LoginFragment"
         android:label="ログイン画面">
         <action
             android:id="@+id/action_loginFragment_to_nfcConfirmFragment"
@@ -15,7 +15,7 @@
 
     <fragment
         android:id="@+id/nfcConfirmFragment"
-        android:name="com.example.nfcconfirm.NfcConfirmFragment"
+        android:name="com.hitachi.confirmnfc.ui.fragment.NfcConfirmFragment"
         android:label="NFC確認画面" />
 
 </navigation>

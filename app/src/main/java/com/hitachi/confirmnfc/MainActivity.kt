@@ -1,11 +1,12 @@
-package com.example.nfcconfirm
+package com.hitachi.confirmnfc
 
 import android.content.Intent
 import android.nfc.NfcAdapter
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.example.nfcconfirm.databinding.ActivityMainBinding
+import com.hitachi.confirmnfc.databinding.ActivityMainBinding
+import com.hitachi.confirmnfc.ui.viewmodel.AppViewModel
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding

@@ -1,5 +1,6 @@
-package com.example.nfcconfirm
+package com.hitachi.confirmnfc.data
 
+import com.hitachi.confirmnfc.model.CsvRecord
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
