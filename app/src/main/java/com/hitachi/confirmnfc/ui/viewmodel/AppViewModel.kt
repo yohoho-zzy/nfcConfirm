@@ -2,6 +2,17 @@ package com.hitachi.confirmnfc.ui.viewmodel
 
 import android.app.Application
 import android.nfc.Tag
+import android.nfc.tech.Ndef
+import android.nfc.tech.NdefFormatable
+import android.nfc.tech.NfcA
+import android.nfc.tech.NfcB
+import android.nfc.tech.NfcF
+import android.nfc.tech.NfcV
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -35,13 +46,11 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     private var csvRecords: List<CsvRecord> = emptyList()
 
-    fun login(userId: String) {
-        val temporaryPhoneNumber = "09012345678"
-
+    fun login(userId: String, phoneNumber: String) {
         viewModelScope.launch {
             _loginState.value = LoginState.Loading
             _progressMessage.value = getApplication<Application>().getString(R.string.login_in_progress)
-            val result = repository.fetchCsv(userId, temporaryPhoneNumber)
+            val result = repository.fetchCsv(userId, phoneNumber)
             result.onSuccess {
                 csvRecords = it
                 _loginState.value = LoginState.Success(it)
@@ -59,18 +68,18 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     fun onTagDetected(tag: Tag?) {
         viewModelScope.launch {
-            _progressMessage.value = getApplication<Application>().getString(R.string.fetch_in_progress)
-
             if (tag == null) {
                 _nfcMessage.value = getApplication<Application>().getString(R.string.nfc_tag_not_recognized)
-                _progressMessage.value = null
+                Log.w(TAG, "NFC tag is null")
                 return@launch
             }
+
+            vibrateOnTagDetected()
+            logTagDetails(tag)
 
             val serial = tag.id?.joinToString(separator = "") { "%02X".format(it) } ?: ""
             if (serial.isBlank()) {
                 _nfcMessage.value = getApplication<Application>().getString(R.string.serial_not_available)
-                _progressMessage.value = null
                 return@launch
             }
 
@@ -88,8 +97,57 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             } else {
                 getApplication<Application>().getString(R.string.not_registered)
             }
+        }
+    }
 
-            _progressMessage.value = null
+    private fun vibrateOnTagDetected() {
+        val app = getApplication<Application>()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val vibratorManager = app.getSystemService(VibratorManager::class.java)
+            vibratorManager?.defaultVibrator?.vibrate(
+                VibrationEffect.createOneShot(150, VibrationEffect.DEFAULT_AMPLITUDE)
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            val vibrator = app.getSystemService(Vibrator::class.java)
+            @Suppress("DEPRECATION")
+            vibrator?.vibrate(150)
+        }
+    }
+
+    private fun logTagDetails(tag: Tag) {
+        val serial = tag.id?.joinToString(separator = "") { "%02X".format(it) }.orEmpty()
+        Log.i(TAG, "Tag id(hex)=$serial")
+        Log.i(TAG, "Tag techList=${tag.techList.joinToString()}")
+
+        val nfcA = NfcA.get(tag)
+        if (nfcA != null) {
+            Log.i(TAG, "NfcA atqa=${nfcA.atqa?.joinToString { "%02X".format(it) }} sak=${nfcA.sak} maxTransceive=${nfcA.maxTransceiveLength}")
+        }
+
+        val nfcB = NfcB.get(tag)
+        if (nfcB != null) {
+            Log.i(TAG, "NfcB appData=${nfcB.applicationData?.joinToString { "%02X".format(it) }} protocolInfo=${nfcB.protocolInfo?.joinToString { "%02X".format(it) }}")
+        }
+
+        val nfcF = NfcF.get(tag)
+        if (nfcF != null) {
+            Log.i(TAG, "NfcF manufacturer=${nfcF.manufacturer?.joinToString { "%02X".format(it) }} systemCode=${nfcF.systemCode?.joinToString { "%02X".format(it) }}")
+        }
+
+        val nfcV = NfcV.get(tag)
+        if (nfcV != null) {
+            Log.i(TAG, "NfcV dsfId=${nfcV.dsfId} responseFlags=${nfcV.responseFlags}")
+        }
+
+        val ndef = Ndef.get(tag)
+        if (ndef != null) {
+            Log.i(TAG, "Ndef type=${ndef.type} maxSize=${ndef.maxSize} isWritable=${ndef.isWritable} canMakeReadOnly=${ndef.canMakeReadOnly()}")
+        }
+
+        val ndefFormatable = NdefFormatable.get(tag)
+        if (ndefFormatable != null) {
+            Log.i(TAG, "NdefFormatable is available for this tag")
         }
     }
 
@@ -99,5 +157,9 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         _nfcMessage.value = getApplication<Application>().getString(R.string.nfc_instruction)
         _serialText.value = getApplication<Application>().getString(R.string.serial_default)
         _progressMessage.value = null
+    }
+
+    companion object {
+        private const val TAG = "AppViewModel"
     }
 }

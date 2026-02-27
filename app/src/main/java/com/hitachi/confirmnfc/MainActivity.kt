@@ -2,6 +2,7 @@ package com.hitachi.confirmnfc
 
 import android.content.Intent
 import android.nfc.NfcAdapter
+import android.util.Log
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -28,7 +29,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun handleNfcIntent(intent: Intent?) {
-        if (intent?.action == NfcAdapter.ACTION_TAG_DISCOVERED) {
+        if (intent == null) return
+
+        if (
+            intent.action == NfcAdapter.ACTION_TAG_DISCOVERED ||
+            intent.action == NfcAdapter.ACTION_TECH_DISCOVERED ||
+            intent.action == NfcAdapter.ACTION_NDEF_DISCOVERED
+        ) {
+            Log.i(TAG, "NFC intent action=${intent.action}, extras=${intent.extras?.keySet()?.joinToString()}")
             val tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG, android.nfc.Tag::class.java)
             viewModel.onTagDetected(tag)
         }
@@ -64,5 +72,9 @@ class MainActivity : AppCompatActivity() {
                 navController.popBackStack(R.id.loginFragment, false)
             }
         }
+    }
+
+    companion object {
+        private const val TAG = "MainActivity"
     }
 }
