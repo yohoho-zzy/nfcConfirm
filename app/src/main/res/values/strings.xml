@@ -3,7 +3,10 @@
     <string name="app_name">NFC確認</string>
     <string name="login_title">ログイン</string>
     <string name="user_id_hint">ユーザーID</string>
-    <string name="password_hint">パスワード</string>
+    <string name="phone_number_hint">電話番号</string>
+    <string name="permission_settings_button">設定権限</string>
+    <string name="phone_permission_required">電話番号の権限が必要です。設定から許可してください。</string>
+    <string name="phone_number_unknown">取得できません</string>
     <string name="login_button">ログイン</string>
     <string name="nfc_header">NFC</string>
     <string name="serial_default">------</string>
