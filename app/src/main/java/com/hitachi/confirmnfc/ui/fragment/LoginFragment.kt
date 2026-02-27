@@ -41,21 +41,29 @@ class LoginFragment : Fragment() {
         viewModel.loginState.observe(viewLifecycleOwner) { state ->
             when (state) {
                 is LoginState.Idle -> {
-                    binding.loginProgress.visibility = View.GONE
                     binding.loginMessage.text = ""
                 }
                 is LoginState.Loading -> {
-                    binding.loginProgress.visibility = View.VISIBLE
-                    binding.loginMessage.text = "ログイン中..."
+                    binding.loginMessage.text = ""
                 }
                 is LoginState.Success -> {
-                    binding.loginProgress.visibility = View.GONE
                     binding.loginMessage.text = "ログイン成功"
                     findNavController().navigate(R.id.action_loginFragment_to_nfcConfirmFragment)
                 }
                 is LoginState.Error -> {
-                    binding.loginProgress.visibility = View.GONE
                     binding.loginMessage.text = state.message
+                }
+            }
+        }
+
+        viewModel.progressMessage.observe(viewLifecycleOwner) { message ->
+            val existing = childFragmentManager.findFragmentByTag(ProgressDialogFragment.TAG)
+            if (message.isNullOrBlank()) {
+                (existing as? ProgressDialogFragment)?.dismissAllowingStateLoss()
+            } else {
+                if (existing == null) {
+                    ProgressDialogFragment.newInstance(message)
+                        .show(childFragmentManager, ProgressDialogFragment.TAG)
                 }
             }
         }

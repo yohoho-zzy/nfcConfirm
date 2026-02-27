@@ -6,8 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.fragment.findNavController
-import com.hitachi.confirmnfc.R
 import com.hitachi.confirmnfc.databinding.FragmentNfcConfirmBinding
 import com.hitachi.confirmnfc.ui.viewmodel.AppViewModel
 
@@ -35,9 +33,16 @@ class NfcConfirmFragment : Fragment() {
             binding.nfc1Value.text = serial
         }
 
-        binding.backButton.setOnClickListener {
-            viewModel.logout()
-            findNavController().popBackStack(R.id.loginFragment, false)
+        viewModel.progressMessage.observe(viewLifecycleOwner) { message ->
+            val existing = childFragmentManager.findFragmentByTag(ProgressDialogFragment.TAG)
+            if (message.isNullOrBlank()) {
+                (existing as? ProgressDialogFragment)?.dismissAllowingStateLoss()
+            } else {
+                if (existing == null) {
+                    ProgressDialogFragment.newInstance(message)
+                        .show(childFragmentManager, ProgressDialogFragment.TAG)
+                }
+            }
         }
     }
 

@@ -29,6 +29,9 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val _serialText = MutableLiveData("------")
     val serialText: LiveData<String> = _serialText
 
+    private val _progressMessage = MutableLiveData<String?>(null)
+    val progressMessage: LiveData<String?> = _progressMessage
+
     private var csvRecords: List<CsvRecord> = emptyList()
 
     fun login(userId: String) {
@@ -36,37 +39,50 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
         viewModelScope.launch {
             _loginState.value = LoginState.Loading
+            _progressMessage.value = "ログイン中..."
             val result = repository.fetchCsv(userId, temporaryPhoneNumber)
             result.onSuccess {
                 csvRecords = it
                 _loginState.value = LoginState.Success(it)
                 _nfcMessage.value = "ログイン成功。NFCをかざしてください"
+                _progressMessage.value = null
             }.onFailure {
                 _loginState.value = LoginState.Error(it.message ?: "ログインに失敗しました。")
+                _progressMessage.value = null
             }
         }
     }
 
     fun onTagDetected(tag: Tag?) {
-        if (tag == null) {
-            _nfcMessage.value = "NFCタグを認識できませんでした。"
-            return
-        }
-        val serial = tag.id?.joinToString(separator = "") { "%02X".format(it) } ?: ""
-        if (serial.isBlank()) {
-            _nfcMessage.value = "シリアル番号を取得できませんでした。"
-            return
-        }
-        _serialText.value = serial
+        viewModelScope.launch {
+            _progressMessage.value = "取得中..."
 
-        val match = csvRecords.firstOrNull { record ->
-            record.columns.any { column -> column.equals(serial, ignoreCase = true) }
-        }
+            if (tag == null) {
+                _nfcMessage.value = "NFCタグを認識できませんでした。"
+                _progressMessage.value = null
+                return@launch
+            }
 
-        _nfcMessage.value = if (match != null) {
-            "照合成功: ${match.columns.joinToString(" / ")}"
-        } else {
-            "登録がありません。"
+            val serial = tag.id?.joinToString(separator = "") { "%02X".format(it) } ?: ""
+            if (serial.isBlank()) {
+                _nfcMessage.value = "シリアル番号を取得できませんでした。"
+                _progressMessage.value = null
+                return@launch
+            }
+
+            _serialText.value = serial
+
+            val match = csvRecords.firstOrNull { record ->
+                record.columns.any { column -> column.equals(serial, ignoreCase = true) }
+            }
+
+            _nfcMessage.value = if (match != null) {
+                "照合成功: ${match.columns.joinToString(" / ")}"
+            } else {
+                "登録がありません。"
+            }
+
+            _progressMessage.value = null
         }
     }
 
@@ -75,5 +91,6 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         _loginState.value = LoginState.Idle
         _nfcMessage.value = "カードをかざしてください"
         _serialText.value = "------"
+        _progressMessage.value = null
     }
 }
