@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NFC確認</string>
+    <string name="login_title">ログイン</string>
+    <string name="user_id_hint">ユーザーIDを入力</string>
+    <string name="login_button">ログイン</string>
+    <string name="nfc_header">NFC</string>
+    <string name="serial_default">------</string>
+    <string name="nfc_instruction">カードをタップしてください。</string>
+    <string name="logout_button">戻る</string>
+</resources>
