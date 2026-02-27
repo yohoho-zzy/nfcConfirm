@@ -1,5 +1,7 @@
 package com.hitachi.confirmnfc.data
 
+import android.content.Context
+import com.hitachi.confirmnfc.R
 import com.hitachi.confirmnfc.model.CsvRecord
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -9,7 +11,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.util.Base64
 
-class LoginRepository {
+class LoginRepository(private val context: Context) {
     private val csvUrl = "https://d2kkch5g6rdzfp.cloudfront.net/abcdefg.csv"
 
     suspend fun fetchCsv(userId: String, phoneNumber: String): Result<List<CsvRecord>> = withContext(Dispatchers.IO) {
@@ -32,7 +34,9 @@ class LoginRepository {
                     if (records.isNotEmpty()) {
                         return@withContext Result.success(records)
                     }
-                    return@withContext Result.failure(IllegalStateException("CSVが空です"))
+                    return@withContext Result.failure(
+                        IllegalStateException(context.getString(R.string.csv_empty))
+                    )
                 }
             } catch (_: Exception) {
             }
@@ -40,6 +44,6 @@ class LoginRepository {
                 delay(1500)
             }
         }
-        Result.failure(IllegalStateException("CSV取得に失敗しました"))
+        Result.failure(IllegalStateException(context.getString(R.string.csv_fetch_failed)))
     }
 }

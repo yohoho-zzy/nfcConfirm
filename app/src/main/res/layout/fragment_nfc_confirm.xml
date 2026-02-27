@@ -7,38 +7,21 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:background="#3F9142"
-        android:gravity="center_vertical"
-        android:paddingHorizontal="12dp">
-
-        <ImageButton
-            android:id="@+id/backButton"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="@android:color/transparent"
-            android:contentDescription="back"
-            android:src="@android:drawable/ic_media_previous"
-            android:tint="@android:color/white" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="130dp"
+        android:layout_height="100dp"
         android:background="@android:color/white"
         android:gravity="center"
         android:orientation="vertical">
 
         <ImageView
-            android:layout_width="140dp"
-            android:layout_height="72dp"
+            android:layout_width="110dp"
+            android:layout_height="56dp"
             android:src="@android:drawable/stat_sys_data_bluetooth"
             android:tint="#2F5F99" />
 
         <ImageView
-            android:layout_width="72dp"
-            android:layout_height="72dp"
-            android:layout_marginTop="-24dp"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="-16dp"
             android:src="@android:drawable/ic_menu_call"
             android:tint="#1B1B1B" />
     </LinearLayout>
@@ -48,11 +31,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#2E4256"
-        android:padding="10dp"
-        android:text="NFCをかざしてください"
+        android:padding="8dp"
+        android:text="@string/nfc_instruction"
         android:textAlignment="center"
         android:textColor="@android:color/white"
-        android:textSize="40sp"
+        android:textSize="26sp"
         android:textStyle="bold" />
 
     <LinearLayout
@@ -60,7 +43,7 @@
         android:layout_height="wrap_content"
         android:background="@android:color/white"
         android:orientation="vertical"
-        android:padding="10dp">
+        android:padding="8dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -68,11 +51,11 @@
             android:orientation="horizontal">
 
             <TextView
-                android:layout_width="110dp"
+                android:layout_width="92dp"
                 android:layout_height="wrap_content"
-                android:text="名称"
+                android:text="@string/label_name"
                 android:textColor="#1F2833"
-                android:textSize="32sp"
+                android:textSize="22sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -90,11 +73,11 @@
             android:orientation="horizontal">
 
             <TextView
-                android:layout_width="110dp"
+                android:layout_width="92dp"
                 android:layout_height="wrap_content"
-                android:text="得意先コード"
+                android:text="@string/label_customer_code"
                 android:textColor="#1F2833"
-                android:textSize="32sp"
+                android:textSize="22sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -108,16 +91,16 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="8dp"
             android:background="#DDDDDD" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="住所"
+            android:layout_marginTop="4dp"
+            android:text="@string/label_address"
             android:textColor="#1F2833"
-            android:textSize="32sp"
+            android:textSize="22sp"
             android:textStyle="bold" />
 
         <TextView
@@ -129,15 +112,15 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="8dp"
             android:orientation="horizontal">
 
             <TextView
-                android:layout_width="100dp"
+                android:layout_width="82dp"
                 android:layout_height="wrap_content"
-                android:text="NFC1"
+                android:text="@string/label_nfc1"
                 android:textColor="#1F2833"
-                android:textSize="32sp" />
+                android:textSize="22sp" />
 
             <TextView
                 android:id="@+id/nfc1Value"
@@ -145,8 +128,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="#EFEFEF"
-                android:text="------"
-                android:textSize="24sp" />
+                android:text="@string/serial_default"
+                android:textSize="18sp" />
         </LinearLayout>
 
         <TextView
@@ -157,10 +140,10 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="NFC2"
+            android:layout_marginTop="4dp"
+            android:text="@string/label_nfc2"
             android:textColor="#1F2833"
-            android:textSize="32sp" />
+            android:textSize="22sp" />
 
         <TextView
             android:layout_width="match_parent"
@@ -170,10 +153,10 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="NFC3"
+            android:layout_marginTop="4dp"
+            android:text="@string/label_nfc3"
             android:textColor="#1F2833"
-            android:textSize="32sp" />
+            android:textSize="22sp" />
 
         <TextView
             android:layout_width="match_parent"

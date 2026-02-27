@@ -2,10 +2,34 @@
 <resources>
     <string name="app_name">NFC確認</string>
     <string name="login_title">ログイン</string>
-    <string name="user_id_hint">ユーザーIDを入力</string>
+    <string name="user_id_hint">ユーザーID</string>
+    <string name="password_hint">パスワード</string>
     <string name="login_button">ログイン</string>
     <string name="nfc_header">NFC</string>
     <string name="serial_default">------</string>
-    <string name="nfc_instruction">カードをタップしてください。</string>
+    <string name="nfc_instruction">カードをかざしてください</string>
     <string name="logout_button">戻る</string>
+    <string name="back_button_description">戻る</string>
+    <string name="screen_login">ログイン画面</string>
+    <string name="screen_nfc_confirm">NFC確認画面</string>
+    <string name="label_name">名称</string>
+    <string name="label_customer_code">得意先コード</string>
+    <string name="label_address">住所</string>
+    <string name="label_nfc1">NFC1</string>
+    <string name="label_nfc2">NFC2</string>
+    <string name="label_nfc3">NFC3</string>
+    <string name="login_success">ログイン成功</string>
+    <string name="login_in_progress">ログイン中...</string>
+    <string name="fetch_in_progress">取得中...</string>
+    <string name="progress_default">処理中...</string>
+    <string name="input_user_id_required">ユーザーIDを入力してください。</string>
+    <string name="login_failed">ログインに失敗しました。</string>
+    <string name="login_success_nfc_prompt">ログイン成功。NFCをかざしてください</string>
+    <string name="nfc_tag_not_recognized">NFCタグを認識できませんでした。</string>
+    <string name="serial_not_available">シリアル番号を取得できませんでした。</string>
+    <string name="match_success">照合成功: %1$s</string>
+    <string name="not_registered">登録がありません。</string>
+    <string name="csv_empty">CSVが空です</string>
+    <string name="csv_fetch_failed">CSV取得に失敗しました</string>
+    <string name="top_title_nfc_confirm">NFC確認</string>
 </resources>
