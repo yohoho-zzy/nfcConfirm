@@ -68,6 +68,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     fun onTagDetected(tag: Tag?) {
         viewModelScope.launch {
+            Log.i(TAG, "onTagDetected called. hasTag=${tag != null}, csvRecordCount=${csvRecords.size}")
             if (tag == null) {
                 _nfcMessage.value = getApplication<Application>().getString(R.string.nfc_tag_not_recognized)
                 Log.w(TAG, "NFC tag is null")
@@ -78,8 +79,10 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             logTagDetails(tag)
 
             val serial = tag.id?.joinToString(separator = "") { "%02X".format(it) } ?: ""
+            Log.i(TAG, "Parsed tag serial=$serial")
             if (serial.isBlank()) {
                 _nfcMessage.value = getApplication<Application>().getString(R.string.serial_not_available)
+                Log.w(TAG, "NFC tag serial is blank")
                 return@launch
             }
 
@@ -90,11 +93,13 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             _nfcMessage.value = if (match != null) {
+                Log.i(TAG, "NFC serial matched with CSV record=${match.columns.joinToString()}")
                 getApplication<Application>().getString(
                     R.string.match_success,
                     match.columns.joinToString(" / ")
                 )
             } else {
+                Log.w(TAG, "NFC serial not found in CSV records")
                 getApplication<Application>().getString(R.string.not_registered)
             }
         }
