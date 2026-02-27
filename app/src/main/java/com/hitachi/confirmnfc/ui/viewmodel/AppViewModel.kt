@@ -107,16 +107,20 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun vibrateOnTagDetected() {
         val app = getApplication<Application>()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val vibratorManager = app.getSystemService(VibratorManager::class.java)
-            vibratorManager?.defaultVibrator?.vibrate(
-                VibrationEffect.createOneShot(150, VibrationEffect.DEFAULT_AMPLITUDE)
-            )
-        } else {
-            @Suppress("DEPRECATION")
-            val vibrator = app.getSystemService(Vibrator::class.java)
-            @Suppress("DEPRECATION")
-            vibrator?.vibrate(150)
+        runCatching {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val vibratorManager = app.getSystemService(VibratorManager::class.java)
+                vibratorManager?.defaultVibrator?.vibrate(
+                    VibrationEffect.createOneShot(150, VibrationEffect.DEFAULT_AMPLITUDE)
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                val vibrator = app.getSystemService(Vibrator::class.java)
+                @Suppress("DEPRECATION")
+                vibrator?.vibrate(150)
+            }
+        }.onFailure {
+            Log.w(TAG, "Unable to vibrate on tag detection", it)
         }
     }
 
