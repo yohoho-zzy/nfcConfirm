@@ -9,6 +9,7 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import com.hitachi.confirmnfc.databinding.ActivityMainBinding
 import com.hitachi.confirmnfc.ui.viewmodel.AppViewModel
@@ -50,8 +51,16 @@ class MainActivity : AppCompatActivity() {
             val tag = getTagFromIntent(intent)
             Log.i(TAG, "Parsed NFC tag success=${tag != null}")
             viewModel.onTagDetected(tag)
+            navigateToNfcConfirmIfNeeded()
         } else {
             Log.i(TAG, "Intent is not NFC related, ignored. action=${intent.action}")
+        }
+    }
+
+    private fun navigateToNfcConfirmIfNeeded() {
+        val navController = findNavController(R.id.navHost)
+        if (navController.currentDestination?.id == R.id.loginFragment) {
+            navController.navigate(R.id.action_loginFragment_to_nfcConfirmFragment)
         }
     }
 
