@@ -13,17 +13,20 @@ import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.hitachi.confirmnfc.R
 import com.hitachi.confirmnfc.databinding.FragmentLoginBinding
 import com.hitachi.confirmnfc.ui.viewmodel.LoginViewModel
 import com.hitachi.confirmnfc.ui.viewmodel.LoginState
+import com.hitachi.confirmnfc.ui.viewmodel.NfcConfirmViewModel
 
 class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
     private val viewModel: LoginViewModel by viewModels()
+    private val nfcConfirmViewModel: NfcConfirmViewModel by activityViewModels()
     private var phonePermissionDenied = false
 
     private val permissions = arrayOf(
@@ -79,6 +82,7 @@ class LoginFragment : Fragment() {
                 is LoginState.Loading -> binding.loginMessage.text = ""
                 is LoginState.Success -> {
                     binding.loginMessage.text = getString(R.string.login_success)
+                    nfcConfirmViewModel.resetUi()
                     findNavController().navigate(R.id.action_loginFragment_to_nfcConfirmFragment)
                     viewModel.resetState()
                 }

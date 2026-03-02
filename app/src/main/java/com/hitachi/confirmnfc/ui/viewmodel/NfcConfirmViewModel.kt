@@ -21,11 +21,30 @@ import com.hitachi.confirmnfc.R
 import kotlinx.coroutines.launch
 
 class NfcConfirmViewModel(application: Application) : AndroidViewModel(application) {
+    data class ScanItem(
+        val serial: String,
+        val name: String,
+        val customerCode: String,
+        val address: String
+    )
+
     private val _nfcMessage = MutableLiveData(application.getString(R.string.nfc_instruction))
     val nfcMessage: LiveData<String> = _nfcMessage
 
-    private val _serialText = MutableLiveData(application.getString(R.string.serial_default))
-    val serialText: LiveData<String> = _serialText
+    private val _scanItems = MutableLiveData<List<ScanItem>>(emptyList())
+    val scanItems: LiveData<List<ScanItem>> = _scanItems
+
+    private val _selectedIndex = MutableLiveData(-1)
+    val selectedIndex: LiveData<Int> = _selectedIndex
+
+    private val _nameText = MutableLiveData(application.getString(R.string.serial_default))
+    val nameText: LiveData<String> = _nameText
+
+    private val _customerCodeText = MutableLiveData(application.getString(R.string.serial_default))
+    val customerCodeText: LiveData<String> = _customerCodeText
+
+    private val _addressText = MutableLiveData(application.getString(R.string.serial_default))
+    val addressText: LiveData<String> = _addressText
 
     private val _notFoundDialogMessage = MutableLiveData<String?>(null)
     val notFoundDialogMessage: LiveData<String?> = _notFoundDialogMessage
@@ -53,22 +72,78 @@ class NfcConfirmViewModel(application: Application) : AndroidViewModel(applicati
                 return@launch
             }
 
-            _serialText.value = serial
-
             val match = LoginSessionStore.csvRecords.firstOrNull { record ->
                 record.columns.any { column -> column.equals(serial, ignoreCase = true) }
             }
 
             if (match != null) {
+                val name = match.columns.getOrNull(0).orEmpty().ifBlank {
+                    getApplication<Application>().getString(R.string.serial_default)
+                }
+                val customerCode = match.columns.getOrNull(1).orEmpty().ifBlank {
+                    getApplication<Application>().getString(R.string.serial_default)
+                }
+                val address = match.columns.getOrNull(2).orEmpty().ifBlank {
+                    getApplication<Application>().getString(R.string.serial_default)
+                }
+                addScanItem(
+                    ScanItem(
+                        serial = serial,
+                        name = name,
+                        customerCode = customerCode,
+                        address = address
+                    )
+                )
                 _nfcMessage.value = getApplication<Application>().getString(
                     R.string.match_success,
                     match.columns.joinToString(" / ")
                 )
             } else {
+                addScanItem(
+                    ScanItem(
+                        serial = serial,
+                        name = getApplication<Application>().getString(R.string.serial_default),
+                        customerCode = getApplication<Application>().getString(R.string.serial_default),
+                        address = getApplication<Application>().getString(R.string.serial_default)
+                    )
+                )
                 _nfcMessage.value = getApplication<Application>().getString(R.string.login_success_nfc_prompt)
                 _notFoundDialogMessage.value = getApplication<Application>().getString(R.string.not_registered)
             }
         }
+    }
+
+    fun showPreviousItem() {
+        val current = _selectedIndex.value ?: -1
+        if (current > 0) {
+            showItemAt(current - 1)
+        }
+    }
+
+    fun showNextItem() {
+        val current = _selectedIndex.value ?: -1
+        val lastIndex = (_scanItems.value?.size ?: 0) - 1
+        if (current in 0 until lastIndex) {
+            showItemAt(current + 1)
+        }
+    }
+
+    private fun addScanItem(item: ScanItem) {
+        val updated = (_scanItems.value ?: emptyList()) + item
+        _scanItems.value = updated
+        showItemAt(updated.lastIndex)
+    }
+
+    private fun showItemAt(index: Int) {
+        val items = _scanItems.value ?: return
+        if (index !in items.indices) {
+            return
+        }
+        _selectedIndex.value = index
+        val selected = items[index]
+        _nameText.value = selected.name
+        _customerCodeText.value = selected.customerCode
+        _addressText.value = selected.address
     }
 
     fun onNotFoundDialogShown() {
@@ -77,7 +152,11 @@ class NfcConfirmViewModel(application: Application) : AndroidViewModel(applicati
 
     fun resetUi() {
         _nfcMessage.value = getApplication<Application>().getString(R.string.nfc_instruction)
-        _serialText.value = getApplication<Application>().getString(R.string.serial_default)
+        _scanItems.value = emptyList()
+        _selectedIndex.value = -1
+        _nameText.value = getApplication<Application>().getString(R.string.serial_default)
+        _customerCodeText.value = getApplication<Application>().getString(R.string.serial_default)
+        _addressText.value = getApplication<Application>().getString(R.string.serial_default)
         _notFoundDialogMessage.value = null
     }
 
