@@ -12,6 +12,7 @@ import androidx.core.view.isVisible
 import androidx.navigation.fragment.NavHostFragment
 import com.hitachi.confirmnfc.databinding.ActivityMainBinding
 import com.hitachi.confirmnfc.ui.viewmodel.LoginViewModel
+import com.hitachi.confirmnfc.ui.viewmodel.LoginSessionStore
 import com.hitachi.confirmnfc.ui.viewmodel.NfcConfirmViewModel
 
 class MainActivity : AppCompatActivity() {
@@ -41,22 +42,48 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        val navHostFragment =
-            supportFragmentManager.findFragmentById(R.id.navHost) as? NavHostFragment
-        val currentDestinationId = navHostFragment?.navController?.currentDestination?.id
-        if (currentDestinationId == R.id.loginFragment) {
-            Log.i(TAG, "Ignore NFC intent on login page")
+        val isNfcIntent =
+            intent.action == NfcAdapter.ACTION_TAG_DISCOVERED ||
+                intent.action == NfcAdapter.ACTION_TECH_DISCOVERED ||
+                intent.action == NfcAdapter.ACTION_NDEF_DISCOVERED
+        if (!isNfcIntent) {
+            Log.i(TAG, "handleNfcIntent ignored because action is not NFC: ${intent.action}")
             return
         }
 
-        if (
-            intent.action == NfcAdapter.ACTION_TAG_DISCOVERED ||
-            intent.action == NfcAdapter.ACTION_TECH_DISCOVERED ||
-            intent.action == NfcAdapter.ACTION_NDEF_DISCOVERED
-        ) {
-            val tag = getTagFromIntent(intent)
-            nfcConfirmViewModel.onTagDetected(tag)
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.navHost) as? NavHostFragment
+        val navController = navHostFragment?.navController
+        val currentDestinationId = navController?.currentDestination?.id
+
+        Log.i(
+            TAG,
+            "handleNfcIntent action=${intent.action}, currentDestinationId=$currentDestinationId, sessionRecordCount=${LoginSessionStore.csvRecords.size}"
+        )
+
+        if (currentDestinationId == null) {
+            Log.w(TAG, "NavController destination is null. Retry NFC handling on next loop.")
+            binding.root.post { handleNfcIntent(intent) }
+            return
         }
+
+        if (currentDestinationId == R.id.loginFragment) {
+            if (LoginSessionStore.csvRecords.isEmpty()) {
+                Log.i(TAG, "Ignore NFC intent on login page because session is empty")
+                return
+            }
+
+            Log.i(TAG, "NFC intent received on login page with active session. Navigate to confirm page first.")
+            navController.navigate(R.id.action_loginFragment_to_nfcConfirmFragment)
+            binding.root.post {
+                val tag = getTagFromIntent(intent)
+                nfcConfirmViewModel.onTagDetected(tag)
+            }
+            return
+        }
+
+        val tag = getTagFromIntent(intent)
+        nfcConfirmViewModel.onTagDetected(tag)
     }
 
     private fun getTagFromIntent(intent: Intent): Tag? {
