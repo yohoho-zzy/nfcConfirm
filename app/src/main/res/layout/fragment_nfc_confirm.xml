@@ -59,11 +59,13 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/nameValue"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="#EFEFEF"
-                android:text=" " />
+                android:text="@string/serial_default"
+                android:textSize="20sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -81,11 +83,13 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/customerCodeValue"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="#EFEFEF"
-                android:text=" " />
+                android:text="@string/serial_default"
+                android:textSize="20sp" />
         </LinearLayout>
 
         <TextView
@@ -104,64 +108,65 @@
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/addressValue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:background="#EFEFEF"
+            android:text="@string/serial_default"
+            android:textSize="20sp" />
+
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginTop="6dp"
             android:background="#DDDDDD" />
 
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:layout_marginTop="8dp"
+            android:fillViewport="true"
+            android:scrollbars="vertical">
+
+            <LinearLayout
+                android:id="@+id/nfcListContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </ScrollView>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:gravity="center"
             android:orientation="horizontal">
 
-            <TextView
-                android:layout_width="82dp"
+            <Button
+                android:id="@+id/previousButton"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/label_nfc1"
-                android:textColor="#1F2833"
-                android:textSize="22sp" />
+                android:text="@string/previous_button"
+                android:visibility="gone" />
 
             <TextView
-                android:id="@+id/nfc1Value"
-                android:layout_width="0dp"
+                android:id="@+id/pageIndicator"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="#EFEFEF"
-                android:text="@string/serial_default"
-                android:textSize="18sp" />
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/nextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/next_button"
+                android:visibility="gone" />
         </LinearLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#DDDDDD" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/label_nfc2"
-            android:textColor="#1F2833"
-            android:textSize="22sp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#DDDDDD" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/label_nfc3"
-            android:textColor="#1F2833"
-            android:textSize="22sp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#DDDDDD" />
     </LinearLayout>
 
 </LinearLayout>

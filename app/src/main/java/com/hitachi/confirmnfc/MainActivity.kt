@@ -41,6 +41,14 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.navHost) as? NavHostFragment
+        val currentDestinationId = navHostFragment?.navController?.currentDestination?.id
+        if (currentDestinationId == R.id.loginFragment) {
+            Log.i(TAG, "Ignore NFC intent on login page")
+            return
+        }
+
         if (
             intent.action == NfcAdapter.ACTION_TAG_DISCOVERED ||
             intent.action == NfcAdapter.ACTION_TECH_DISCOVERED ||
