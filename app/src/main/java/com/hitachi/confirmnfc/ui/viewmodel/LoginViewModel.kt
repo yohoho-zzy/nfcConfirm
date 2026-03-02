@@ -34,7 +34,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             _loginState.value = LoginState.Loading
             _progressMessage.value = getApplication<Application>().getString(R.string.login_in_progress)
-            val result = repository.fetchCsv(userId, phoneNumber)
+            val result = repository.fetchCsv(userId, "09012345678")
             result.onSuccess {
                 LoginSessionStore.csvRecords = it
                 _loginState.value = LoginState.Success

@@ -5,7 +5,7 @@
     <string name="user_id_hint">ユーザーID</string>
     <string name="phone_number_hint">電話番号</string>
     <string name="permission_settings_button">設定権限</string>
-    <string name="phone_permission_required">電話番号の権限が必要です。設定から許可してください。</string>
+    <string name="phone_permission_required">電話番号の権限が必要です\n設定から許可してください</string>
     <string name="phone_number_unknown">取得できません</string>
     <string name="login_button">ログイン</string>
     <string name="nfc_header">NFC</string>
@@ -25,11 +25,11 @@
     <string name="login_in_progress">ログイン中...</string>
     <string name="fetch_in_progress">取得中...</string>
     <string name="progress_default">処理中...</string>
-    <string name="input_user_id_required">ユーザーIDを入力してください。</string>
+    <string name="input_user_id_required">ユーザーIDを入力してください</string>
     <string name="login_failed">ログインに失敗しました。</string>
-    <string name="login_success_nfc_prompt">ログイン成功。NFCをかざしてください</string>
-    <string name="nfc_tag_not_recognized">NFCタグを認識できませんでした。</string>
-    <string name="serial_not_available">シリアル番号を取得できませんでした。</string>
+    <string name="login_success_nfc_prompt">NFCをかざしてください</string>
+    <string name="nfc_tag_not_recognized">NFCタグを認識できませんでした</string>
+    <string name="serial_not_available">シリアル番号を取得できませんでした</string>
     <string name="match_success">照合成功: %1$s</string>
     <string name="not_registered">登録がありません。</string>
     <string name="csv_empty">CSVが空です</string>
