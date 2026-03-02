@@ -1,77 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <LinearLayout
-        android:id="@+id/loginPanel"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:background="@drawable/bg_login_panel"
-        android:orientation="vertical"
-        android:padding="14dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+    <data>
+        <variable
+            name="loginViewModel"
+            type="com.hitachi.confirmnfc.ui.viewmodel.LoginViewModel" />
+    </data>
 
-        <ImageView
-            android:layout_width="64dp"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:id="@+id/loginPanel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:background="@drawable/bg_login_panel"
+            android:orientation="vertical"
+            android:padding="14dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/account_icon" />
+
+            <EditText
+                android:id="@+id/userIdInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_input"
+                android:drawableStart="@drawable/user_id_icon"
+                android:drawablePadding="8dp"
+                android:hint="@string/user_id_hint"
+                android:inputType="text"
+                android:padding="12dp"
+                android:text="@={loginViewModel.userId}" />
+
+            <EditText
+                android:id="@+id/phoneInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_input"
+                android:clickable="false"
+                android:drawableStart="@drawable/phone_icon"
+                android:drawablePadding="8dp"
+                android:focusable="false"
+                android:hint="@string/phone_number_hint"
+                android:inputType="phone"
+                android:padding="12dp"
+                android:text="@{loginViewModel.phoneNumber}" />
+
+            <TextView
+                android:id="@+id/loginMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:text="@{loginViewModel.loginMessage}"
+                android:textColor="#FF0000"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/loginButton"
+            android:layout_width="200dp"
             android:layout_height="64dp"
-            android:layout_gravity="center_horizontal"
-            android:src="@drawable/account_icon" />
+            android:layout_marginTop="24dp"
+            android:backgroundTint="#BDBDBD"
+            android:onClick="@{() -> loginViewModel.onLoginButtonClicked()}"
+            android:text="@{loginViewModel.loginButtonText}"
+            android:textColor="#000000"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/loginPanel" />
 
-        <EditText
-            android:id="@+id/userIdInput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_input"
-            android:drawableStart="@drawable/user_id_icon"
-            android:drawablePadding="8dp"
-            android:hint="@string/user_id_hint"
-            android:inputType="text"
-            android:padding="12dp" />
-
-        <EditText
-            android:id="@+id/phoneInput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/bg_input"
-            android:drawableStart="@drawable/phone_icon"
-            android:drawablePadding="8dp"
-            android:hint="@string/phone_number_hint"
-            android:inputType="phone"
-            android:focusable="false"
-            android:clickable="false"
-            android:padding="12dp" />
-
-        <TextView
-            android:id="@+id/loginMessage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:gravity="center"
-            android:textColor="#FF0000"
-            android:textSize="16sp" />
-    </LinearLayout>
-
-    <Button
-        android:id="@+id/loginButton"
-        android:layout_width="200dp"
-        android:layout_height="64dp"
-        android:layout_marginTop="24dp"
-        android:backgroundTint="#BDBDBD"
-        android:text="@string/login_button"
-        android:textColor="#000000"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/loginPanel" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
