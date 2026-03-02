@@ -4,18 +4,20 @@ import android.content.Intent
 import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.os.Build
-import android.util.Log
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.navigation.fragment.NavHostFragment
 import com.hitachi.confirmnfc.databinding.ActivityMainBinding
-import com.hitachi.confirmnfc.ui.viewmodel.AppViewModel
+import com.hitachi.confirmnfc.ui.viewmodel.LoginViewModel
+import com.hitachi.confirmnfc.ui.viewmodel.NfcConfirmViewModel
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private val viewModel: AppViewModel by viewModels()
+    private val loginViewModel: LoginViewModel by viewModels()
+    private val nfcConfirmViewModel: NfcConfirmViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,19 +41,13 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        Log.i(TAG, "handleNfcIntent start, action=${intent.action}")
-
         if (
             intent.action == NfcAdapter.ACTION_TAG_DISCOVERED ||
             intent.action == NfcAdapter.ACTION_TECH_DISCOVERED ||
             intent.action == NfcAdapter.ACTION_NDEF_DISCOVERED
         ) {
-            Log.i(TAG, "NFC intent action=${intent.action}, extras=${intent.extras?.keySet()?.joinToString()}")
             val tag = getTagFromIntent(intent)
-            Log.i(TAG, "Parsed NFC tag success=${tag != null}")
-            viewModel.onTagDetected(tag)
-        } else {
-            Log.i(TAG, "Intent is not NFC related, ignored. action=${intent.action}")
+            nfcConfirmViewModel.onTagDetected(tag)
         }
     }
 
@@ -90,8 +86,9 @@ class MainActivity : AppCompatActivity() {
 
         binding.backButton.setOnClickListener {
             if (navController.currentDestination?.id == R.id.nfcConfirmFragment) {
-                viewModel.logout()
-                navController.popBackStack(R.id.loginFragment, false)
+                loginViewModel.clearSession()
+                nfcConfirmViewModel.resetUi()
+                navController.navigate(R.id.action_nfcConfirmFragment_to_loginFragment)
             }
         }
     }

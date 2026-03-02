@@ -13,17 +13,17 @@ import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.hitachi.confirmnfc.R
 import com.hitachi.confirmnfc.databinding.FragmentLoginBinding
-import com.hitachi.confirmnfc.ui.viewmodel.AppViewModel
+import com.hitachi.confirmnfc.ui.viewmodel.LoginViewModel
 import com.hitachi.confirmnfc.ui.viewmodel.LoginState
 
 class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: AppViewModel by activityViewModels()
+    private val viewModel: LoginViewModel by viewModels()
     private var phonePermissionDenied = false
 
     private val permissions = arrayOf(
@@ -80,17 +80,12 @@ class LoginFragment : Fragment() {
                 is LoginState.Success -> {
                     binding.loginMessage.text = getString(R.string.login_success)
                     findNavController().navigate(R.id.action_loginFragment_to_nfcConfirmFragment)
+                    viewModel.resetState()
                 }
                 is LoginState.Error -> binding.loginMessage.text = state.message
             }
         }
 
-
-        viewModel.loginFormResetSignal.observe(viewLifecycleOwner) {
-            binding.userIdInput.setText("")
-            binding.passwordInput.setText("")
-            binding.loginMessage.text = ""
-        }
         viewModel.progressMessage.observe(viewLifecycleOwner) { message ->
             val existing = childFragmentManager.findFragmentByTag(ProgressDialogFragment.TAG)
             if (message.isNullOrBlank()) {
