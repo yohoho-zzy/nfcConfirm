@@ -8,12 +8,12 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.hitachi.confirmnfc.databinding.FragmentNfcConfirmBinding
-import com.hitachi.confirmnfc.ui.viewmodel.AppViewModel
+import com.hitachi.confirmnfc.ui.viewmodel.NfcConfirmViewModel
 
 class NfcConfirmFragment : Fragment() {
     private var _binding: FragmentNfcConfirmBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: AppViewModel by activityViewModels()
+    private val viewModel: NfcConfirmViewModel by activityViewModels()
     private var notFoundDialog: AlertDialog? = null
 
     override fun onCreateView(
@@ -52,17 +52,6 @@ class NfcConfirmFragment : Fragment() {
                 .show()
         }
 
-        viewModel.progressMessage.observe(viewLifecycleOwner) { message ->
-            val existing = childFragmentManager.findFragmentByTag(ProgressDialogFragment.TAG)
-            if (message.isNullOrBlank()) {
-                (existing as? ProgressDialogFragment)?.dismissAllowingStateLoss()
-            } else {
-                if (existing == null) {
-                    ProgressDialogFragment.newInstance(message)
-                        .show(childFragmentManager, ProgressDialogFragment.TAG)
-                }
-            }
-        }
     }
 
     override fun onDestroyView() {

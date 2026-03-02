@@ -10,12 +10,20 @@
         android:label="@string/screen_login">
         <action
             android:id="@+id/action_loginFragment_to_nfcConfirmFragment"
-            app:destination="@id/nfcConfirmFragment" />
+            app:destination="@id/nfcConfirmFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
         android:id="@+id/nfcConfirmFragment"
         android:name="com.hitachi.confirmnfc.ui.fragment.NfcConfirmFragment"
-        android:label="@string/screen_nfc_confirm" />
+        android:label="@string/screen_nfc_confirm">
+        <action
+            android:id="@+id/action_nfcConfirmFragment_to_loginFragment"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/nfcConfirmFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
 
 </navigation>
