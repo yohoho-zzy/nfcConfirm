@@ -85,11 +85,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun consumeNfcIntent(sourceIntent: Intent) {
-        if (intent !== sourceIntent) {
-            return
-        }
+        sourceIntent.action = null
+        sourceIntent.replaceExtras(Bundle())
 
-        setIntent(Intent(this, MainActivity::class.java))
+        if (intent === sourceIntent) {
+            setIntent(sourceIntent)
+        }
     }
 
     private fun getTagFromIntent(intent: Intent): Tag? {
