@@ -3,7 +3,9 @@ package com.hitachi.confirmnfc
 import android.Manifest
 import android.app.AlertDialog
 import android.app.Dialog
+import android.app.PendingIntent
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.nfc.NfcAdapter
@@ -34,6 +36,24 @@ class MainActivity : AppCompatActivity() {
     private val nfcConfirmViewModel: NfcConfirmViewModel by viewModels()
     private var notFoundDialog: AlertDialog? = null
     private var progressDialog: Dialog? = null
+    private var isForegroundDispatchEnabled = false
+
+    private val nfcAdapter: NfcAdapter? by lazy {
+        NfcAdapter.getDefaultAdapter(this)
+    }
+
+    private val nfcPendingIntent: PendingIntent by lazy {
+        PendingIntent.getActivity(
+            this,
+            0,
+            Intent(this, javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+        )
+    }
+
+    private val nfcIntentFilters by lazy {
+        arrayOf(IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED))
+    }
 
     private val permissions = arrayOf(
         Manifest.permission.READ_PHONE_NUMBERS,
@@ -60,7 +80,16 @@ class MainActivity : AppCompatActivity() {
         setupButtons()
 
         loginViewModel.onScreenStarted(hasPhonePermission(), getPhoneNumber())
-        handleNfcIntent(intent)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        syncForegroundDispatch(loginViewModel.isLoggedIn.value == true)
+    }
+
+    override fun onPause() {
+        disableForegroundDispatch()
+        super.onPause()
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -85,6 +114,8 @@ class MainActivity : AppCompatActivity() {
                 getString(R.string.login_title)
             }
             binding.backButton.isVisible = loggedIn
+
+            syncForegroundDispatch(loggedIn)
         }
 
 
@@ -153,6 +184,45 @@ class MainActivity : AppCompatActivity() {
         val tag = getTagFromIntent(intent)
         nfcConfirmViewModel.onTagDetected(tag)
         consumeNfcIntent(intent)
+    }
+
+    private fun syncForegroundDispatch(isNfcScreen: Boolean) {
+        if (isNfcScreen) {
+            enableForegroundDispatch()
+        } else {
+            disableForegroundDispatch()
+        }
+    }
+
+    private fun enableForegroundDispatch() {
+        if (isForegroundDispatchEnabled) return
+        val adapter = nfcAdapter ?: return
+
+        runCatching {
+            adapter.enableForegroundDispatch(
+                this,
+                nfcPendingIntent,
+                nfcIntentFilters,
+                null
+            )
+            isForegroundDispatchEnabled = true
+            Log.i(TAG, "Foreground dispatch enabled")
+        }.onFailure {
+            Log.w(TAG, "Failed to enable foreground dispatch", it)
+        }
+    }
+
+    private fun disableForegroundDispatch() {
+        if (!isForegroundDispatchEnabled) return
+        val adapter = nfcAdapter ?: return
+
+        runCatching {
+            adapter.disableForegroundDispatch(this)
+            isForegroundDispatchEnabled = false
+            Log.i(TAG, "Foreground dispatch disabled")
+        }.onFailure {
+            Log.w(TAG, "Failed to disable foreground dispatch", it)
+        }
     }
 
     private fun consumeNfcIntent(sourceIntent: Intent) {
