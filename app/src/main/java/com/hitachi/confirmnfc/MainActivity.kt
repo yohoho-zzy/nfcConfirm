@@ -74,10 +74,10 @@ class MainActivity : AppCompatActivity() {
             }
 
             Log.i(TAG, "NFC intent received on login page with active session. Navigate to confirm page first.")
-            navController.navigate(R.id.action_loginFragment_to_nfcConfirmFragment)
-            binding.root.post {
-                val tag = getTagFromIntent(intent)
-                nfcConfirmViewModel.onTagDetected(tag)
+            val tag = getTagFromIntent(intent)
+            nfcConfirmViewModel.onTagDetected(tag)
+            if (navController.currentDestination?.id == R.id.loginFragment) {
+                navController.navigate(R.id.action_loginFragment_to_nfcConfirmFragment)
             }
             return
         }

@@ -94,10 +94,7 @@ class NfcConfirmViewModel(application: Application) : AndroidViewModel(applicati
                         address = address
                     )
                 )
-                _nfcMessage.value = getApplication<Application>().getString(
-                    R.string.match_success,
-                    match.columns.joinToString(" / ")
-                )
+                _nfcMessage.value = getApplication<Application>().getString(R.string.nfc_instruction)
             } else {
                 addScanItem(
                     ScanItem(
@@ -107,7 +104,7 @@ class NfcConfirmViewModel(application: Application) : AndroidViewModel(applicati
                         address = getApplication<Application>().getString(R.string.serial_default)
                     )
                 )
-                _nfcMessage.value = getApplication<Application>().getString(R.string.login_success_nfc_prompt)
+                _nfcMessage.value = getApplication<Application>().getString(R.string.nfc_instruction)
                 _notFoundDialogMessage.value = getApplication<Application>().getString(R.string.not_registered)
             }
         }
