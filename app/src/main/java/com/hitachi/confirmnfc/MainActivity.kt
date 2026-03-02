@@ -68,22 +68,29 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (currentDestinationId == R.id.loginFragment) {
-            if (LoginSessionStore.csvRecords.isEmpty()) {
-                Log.i(TAG, "Ignore NFC intent on login page because session is empty")
-                return
-            }
+            Log.i(TAG, "Ignore NFC intent on login page")
+            consumeNfcIntent(intent)
+            return
+        }
 
-            Log.i(TAG, "NFC intent received on login page with active session. Navigate to confirm page first.")
-            val tag = getTagFromIntent(intent)
-            nfcConfirmViewModel.onTagDetected(tag)
-            if (navController.currentDestination?.id == R.id.loginFragment) {
-                navController.navigate(R.id.action_loginFragment_to_nfcConfirmFragment)
-            }
+        if (currentDestinationId != R.id.nfcConfirmFragment) {
+            Log.i(TAG, "Ignore NFC intent because current destination does not accept NFC: $currentDestinationId")
+            consumeNfcIntent(intent)
             return
         }
 
         val tag = getTagFromIntent(intent)
         nfcConfirmViewModel.onTagDetected(tag)
+        consumeNfcIntent(intent)
+    }
+
+    private fun consumeNfcIntent(sourceIntent: Intent) {
+        sourceIntent.action = null
+        sourceIntent.replaceExtras(Bundle())
+
+        if (intent === sourceIntent) {
+            setIntent(sourceIntent)
+        }
     }
 
     private fun getTagFromIntent(intent: Intent): Tag? {
