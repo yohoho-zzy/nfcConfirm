@@ -1,82 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.fragment.app.FragmentContainerView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:bind="http://schemas.android.com/apk/res-auto">
-
-    <data>
-        <import type="android.view.View" />
-
-        <variable
-            name="loginViewModel"
-            type="com.hitachi.confirmnfc.ui.viewmodel.LoginViewModel" />
-
-        <variable
-            name="nfcViewModel"
-            type="com.hitachi.confirmnfc.ui.viewmodel.NfcConfirmViewModel" />
-    </data>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/commonTopBar"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:background="#52904f"
-            android:paddingHorizontal="12dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <ImageButton
-                android:id="@+id/backButton"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:background="@android:color/transparent"
-                android:src="@drawable/back_left"
-                android:visibility="@{loginViewModel.isLoggedIn ? View.VISIBLE : View.GONE}"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/topBarTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text='@{loginViewModel.isLoggedIn ? @string/top_title_nfc_confirm : @string/login_title}'
-                android:textColor="@android:color/white"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <include
-            android:id="@+id/loginContainer"
-            layout="@layout/fragment_login"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:visibility="@{loginViewModel.isLoggedIn ? View.GONE : View.VISIBLE}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/commonTopBar"
-            bind:loginViewModel="@{loginViewModel}" />
-
-        <include
-            android:id="@+id/nfcContainer"
-            layout="@layout/fragment_nfc_confirm"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:visibility="@{loginViewModel.isLoggedIn ? View.VISIBLE : View.GONE}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/commonTopBar"
-            bind:nfcViewModel="@{nfcViewModel}" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</layout>
+    android:id="@+id/navHostFragment"
+    android:name="androidx.navigation.fragment.NavHostFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:defaultNavHost="true"
+    app:navGraph="@navigation/nav_graph" />
