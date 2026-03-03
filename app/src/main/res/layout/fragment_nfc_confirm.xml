@@ -135,57 +135,6 @@
                         android:textSize="20sp" />
                 </LinearLayout>
             </LinearLayout>
-
-            <ScrollView
-                android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:layout_marginTop="8dp"
-                android:fillViewport="true"
-                android:scrollbars="vertical">
-
-                <LinearLayout
-                    android:id="@+id/nfcListContainer"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:scanItems="@{nfcViewModel.scanItems}"
-                    app:selectedIndex="@{nfcViewModel.selectedIndex}" />
-            </ScrollView>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/previousButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="@{() -> nfcViewModel.showPreviousItem()}"
-                    android:text="@string/previous_button"
-                    app:visibleOrGone="@{nfcViewModel.hasMultipleItems}" />
-
-                <TextView
-                    android:id="@+id/pageIndicator"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:text="@{nfcViewModel.pageIndicator}"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    app:visibleOrGone="@{nfcViewModel.hasAnyItems}" />
-
-                <Button
-                    android:id="@+id/nextButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="@{() -> nfcViewModel.showNextItem()}"
-                    android:text="@string/next_button"
-                    app:visibleOrGone="@{nfcViewModel.hasMultipleItems}" />
-            </LinearLayout>
         </LinearLayout>
 
     </LinearLayout>

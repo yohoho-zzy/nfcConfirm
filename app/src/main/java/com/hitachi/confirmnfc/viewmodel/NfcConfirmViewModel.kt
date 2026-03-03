@@ -38,10 +38,6 @@ class NfcConfirmViewModel(application: Application) : AndroidViewModel(applicati
     val nfcMessage: LiveData<String> = _nfcMessage
 
     private val _scanItems = MutableLiveData<List<ScanItem>>(emptyList())
-    val scanItems: LiveData<List<ScanItem>> = _scanItems
-
-    private val _selectedIndex = MutableLiveData(-1)
-    val selectedIndex: LiveData<Int> = _selectedIndex
 
     private val _nameText = MutableLiveData(app.getString(R.string.serial_default))
     val nameText: LiveData<String> = _nameText
@@ -112,19 +108,6 @@ class NfcConfirmViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    /** 前の履歴へ移動する。 */
-    fun showPreviousItem() {
-        val current = _selectedIndex.value ?: -1
-        if (current > 0) showItemAt(current - 1)
-    }
-
-    /** 次の履歴へ移動する。 */
-    fun showNextItem() {
-        val current = _selectedIndex.value ?: -1
-        val lastIndex = (_scanItems.value?.size ?: 0) - 1
-        if (current in 0 until lastIndex) showItemAt(current + 1)
-    }
-
     private fun addScanItem(item: ScanItem) {
         val updated = (_scanItems.value ?: emptyList()) + item
         _scanItems.value = updated
@@ -135,7 +118,6 @@ class NfcConfirmViewModel(application: Application) : AndroidViewModel(applicati
         val items = _scanItems.value ?: return
         if (index !in items.indices) return
 
-        _selectedIndex.value = index
         val selected = items[index]
         _nameText.value = selected.name
         _customerCodeText.value = selected.customerCode
@@ -154,7 +136,6 @@ class NfcConfirmViewModel(application: Application) : AndroidViewModel(applicati
     fun resetUi() {
         _nfcMessage.value = app.getString(R.string.nfc_instruction)
         _scanItems.value = emptyList()
-        _selectedIndex.value = -1
         _nameText.value = app.getString(R.string.serial_default)
         _customerCodeText.value = app.getString(R.string.serial_default)
         _addressText.value = app.getString(R.string.serial_default)
