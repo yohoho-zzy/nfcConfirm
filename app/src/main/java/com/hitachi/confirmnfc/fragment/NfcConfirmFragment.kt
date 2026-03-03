@@ -5,12 +5,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import com.hitachi.confirmnfc.R
 import com.hitachi.confirmnfc.databinding.FragmentNfcConfirmBinding
 import com.hitachi.confirmnfc.viewmodel.NfcConfirmViewModel
 
 class NfcConfirmFragment : Fragment() {
+
+    companion object {
+        @JvmStatic
+        fun newInstance(): NfcConfirmFragment = NfcConfirmFragment()
+    }
 
     private var _binding: FragmentNfcConfirmBinding? = null
     private val binding get() = _binding!!
@@ -23,14 +30,16 @@ class NfcConfirmFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentNfcConfirmBinding.inflate(inflater, container, false)
+        _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_nfc_confirm, container, false)
+        binding.lifecycleOwner = this
         binding.nfcViewModel = viewModel
+
+        viewModel.init()
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.lifecycleOwner = viewLifecycleOwner
 
         viewModel.notFoundDialogMessage.observe(viewLifecycleOwner) { message ->
             if (message.isNullOrBlank()) return@observe
