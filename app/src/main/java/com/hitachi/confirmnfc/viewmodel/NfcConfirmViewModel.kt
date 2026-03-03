@@ -1,7 +1,6 @@
 package com.hitachi.confirmnfc.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import android.app.Activity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.hitachi.confirmnfc.R
@@ -11,9 +10,9 @@ import java.util.Locale
 /**
  * NFC確認画面の状態を保持するViewModel。
  */
-class NfcConfirmViewModel(application: Application) : AndroidViewModel(application) {
+class NfcConfirmViewModel(context: Activity) : BaseViewModel(context) {
 
-    private val app = getApplication<Application>()
+    private val app = context.applicationContext as android.app.Application
 
     private val _nfcMessage = MutableLiveData(app.getString(R.string.nfc_instruction))
     val nfcMessage: LiveData<String> = _nfcMessage

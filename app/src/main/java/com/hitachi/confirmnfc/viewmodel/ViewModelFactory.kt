@@ -8,6 +8,8 @@ class ViewModelFactory(private val context: Activity) : ViewModelProvider.Factor
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when {
             modelClass.isAssignableFrom(MainViewModel::class.java) -> MainViewModel(context) as T
+            modelClass.isAssignableFrom(LoginViewModel::class.java) -> LoginViewModel(context) as T
+            modelClass.isAssignableFrom(NfcConfirmViewModel::class.java) -> NfcConfirmViewModel(context) as T
             else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }
     }

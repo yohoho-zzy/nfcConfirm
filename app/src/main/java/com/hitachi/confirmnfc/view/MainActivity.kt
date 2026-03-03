@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.hitachi.confirmnfc.R
 import com.hitachi.confirmnfc.enums.ActionEnum
+import com.hitachi.confirmnfc.util.ProgressDialog
 import com.hitachi.confirmnfc.viewmodel.LoginSessionStore
 import com.hitachi.confirmnfc.viewmodel.MainViewModel
 import com.hitachi.confirmnfc.viewmodel.ViewModelFactory
@@ -25,6 +26,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        ProgressDialog.init(this)
 
         Log.i(TAG, "onCreate savedInstanceState=${savedInstanceState != null}")
         mainViewModel.configureNavigator(supportFragmentManager, R.id.frameContainer)

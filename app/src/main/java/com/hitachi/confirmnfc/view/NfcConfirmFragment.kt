@@ -14,6 +14,7 @@ import com.hitachi.confirmnfc.databinding.FragmentNfcConfirmBinding
 import com.hitachi.confirmnfc.util.NfcUtil
 import com.hitachi.confirmnfc.viewmodel.LoginSessionStore
 import com.hitachi.confirmnfc.viewmodel.NfcConfirmViewModel
+import com.hitachi.confirmnfc.viewmodel.ViewModelFactory
 
 class NfcConfirmFragment : Fragment() {
 
@@ -25,7 +26,9 @@ class NfcConfirmFragment : Fragment() {
     private var _binding: FragmentNfcConfirmBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: NfcConfirmViewModel by activityViewModels()
+    private val viewModel: NfcConfirmViewModel by activityViewModels {
+        ViewModelFactory(requireActivity())
+    }
     private var nfcUtil: NfcUtil? = null
 
     override fun onCreateView(
