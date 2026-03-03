@@ -20,24 +20,18 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        mainViewModel.resetNavigationState()
         mainViewModel.configureNavigator(supportFragmentManager, R.id.frameContainer)
-
-        ensureLoginFragmentDisplayed(savedInstanceState == null)
+        ensureInitialLoginPage(savedInstanceState)
     }
 
-    override fun onPostResume() {
-        super.onPostResume()
-        ensureLoginFragmentDisplayed(forceReplace = false)
-    }
-
-
-    private fun ensureLoginFragmentDisplayed(forceReplace: Boolean) {
+    private fun ensureInitialLoginPage(savedInstanceState: Bundle?) {
         val currentFragment = supportFragmentManager.findFragmentById(R.id.frameContainer)
-        if (forceReplace || currentFragment == null) {
+        if (savedInstanceState == null || currentFragment == null) {
             supportFragmentManager.beginTransaction()
                 .setReorderingAllowed(true)
                 .replace(R.id.frameContainer, LoginFragment(), ActionEnum.LOGIN.toString())
-                .commitAllowingStateLoss()
+                .commitNow()
         }
     }
 

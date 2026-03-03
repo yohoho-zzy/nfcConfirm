@@ -21,6 +21,13 @@ open class BaseViewModel(context: Activity) : ViewModel() {
         hostContainerId = containerId
     }
 
+    fun resetNavigationState() {
+        currentAction = ActionEnum.LOGIN
+        previousAction = ActionEnum.LOGIN
+        navigationVisible = false
+    }
+
+
     fun setBack(args: Map<String, String>? = null) {
         onNavigationClick { back(args) }
     }
