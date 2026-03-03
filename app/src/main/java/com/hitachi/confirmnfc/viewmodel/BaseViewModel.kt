@@ -21,7 +21,6 @@ open class BaseViewModel(context: Activity) : ViewModel() {
         hostContainerId = containerId
     }
 
-
     fun setBack(args: Map<String, String>? = null) {
         onNavigationClick { back(args) }
     }
@@ -51,6 +50,7 @@ open class BaseViewModel(context: Activity) : ViewModel() {
         }
 
         val fragmentManager = getFragmentManager() ?: return
+        if (fragmentManager.isStateSaved) return
         val fragmentTransaction = fragmentManager.beginTransaction()
         fragmentTransaction.setReorderingAllowed(true)
         val fragmentTag = to.toString()
