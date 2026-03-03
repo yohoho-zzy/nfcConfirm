@@ -32,12 +32,16 @@ class NfcConfirmFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_nfc_confirm, container, false)
-        binding.lifecycleOwner = this
         binding.nfcViewModel = viewModel
 
         viewModel.init()
         nfcUtil = NfcUtil(requireActivity())
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.lifecycleOwner = viewLifecycleOwner
     }
 
     override fun onResume() {

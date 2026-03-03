@@ -21,6 +21,7 @@ open class BaseViewModel(context: Activity) : ViewModel() {
         hostContainerId = containerId
     }
 
+
     fun setBack(args: Map<String, String>? = null) {
         onNavigationClick { back(args) }
     }
@@ -51,6 +52,7 @@ open class BaseViewModel(context: Activity) : ViewModel() {
 
         val fragmentManager = getFragmentManager() ?: return
         val fragmentTransaction = fragmentManager.beginTransaction()
+        fragmentTransaction.setReorderingAllowed(true)
         val fragmentTag = to.toString()
 
         when (cmd) {
@@ -82,7 +84,11 @@ open class BaseViewModel(context: Activity) : ViewModel() {
             }
         }
 
-        fragmentTransaction.commitAllowingStateLoss()
+        if (fragmentManager.isStateSaved) {
+            fragmentTransaction.commitAllowingStateLoss()
+        } else {
+            fragmentTransaction.commit()
+        }
         previousAction = currentAction
         currentAction = to
         setCurrentView()
