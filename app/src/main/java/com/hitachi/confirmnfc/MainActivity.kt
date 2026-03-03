@@ -21,7 +21,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         mainViewModel.configureNavigator(supportFragmentManager, R.id.frameContainer)
-        if (savedInstanceState == null) {
+
+        val currentFragment = supportFragmentManager.findFragmentById(R.id.frameContainer)
+        if (currentFragment == null) {
             mainViewModel.changeFragment(ActionEnum.LOGIN, FragmentOpCmd.OP_REPLACE)
         }
     }
