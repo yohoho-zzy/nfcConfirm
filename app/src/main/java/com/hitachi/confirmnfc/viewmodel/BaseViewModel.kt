@@ -57,6 +57,7 @@ open class BaseViewModel(context: Activity) : ViewModel() {
         }
 
         val fragmentManager = getFragmentManager() ?: return
+        if (fragmentManager.isStateSaved) return
         val fragmentTransaction = fragmentManager.beginTransaction()
         fragmentTransaction.setReorderingAllowed(true)
         val fragmentTag = to.toString()
