@@ -12,12 +12,23 @@ import com.hitachi.confirmnfc.R
 import com.hitachi.confirmnfc.view.MainActivity
 import java.lang.ref.WeakReference
 
+/**
+ * 画面共通で利用する進捗ダイアログ管理クラス。
+ */
 class ProgressDialog {
     companion object {
+        /** 表示中ダイアログ。 */
         private var alertDialog: AlertDialog? = null
+
+        /** メッセージ表示用ラベル。 */
         private var lblMessage: TextView? = null
+
+        /** Activity参照を弱参照で保持する。 */
         private var activityRef: WeakReference<MainActivity>? = null
 
+        /**
+         * 利用対象Activityを初期化する。
+         */
         fun init(activity: MainActivity) {
             val current = activityRef?.get()
             if (current !== activity) {
@@ -26,6 +37,9 @@ class ProgressDialog {
             }
         }
 
+        /**
+         * ダイアログUIを生成する。
+         */
         private fun createProgressDialog(activity: MainActivity) {
             val padding = 30
             val linear = LinearLayout(activity)
@@ -68,6 +82,9 @@ class ProgressDialog {
             alertDialog = builder.create()
         }
 
+        /**
+         * 進捗ダイアログを表示する。
+         */
         fun show(msgId: Int = R.string.progress_default) {
             val activity = activityRef?.get() ?: return
             activity.runOnUiThread {
@@ -88,6 +105,9 @@ class ProgressDialog {
             }
         }
 
+        /**
+         * 進捗ダイアログを非表示にする。
+         */
         fun hide() {
             val activity = activityRef?.get() ?: return
             activity.runOnUiThread {
@@ -95,8 +115,14 @@ class ProgressDialog {
             }
         }
 
+        /**
+         * ダイアログ表示中かを返す。
+         */
         fun isShowing(): Boolean = alertDialog?.isShowing == true
 
+        /**
+         * 内部ダイアログ参照を破棄する。
+         */
         private fun dismissInternal() {
             alertDialog?.dismiss()
             alertDialog = null

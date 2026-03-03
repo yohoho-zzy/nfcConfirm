@@ -7,14 +7,26 @@ import android.nfc.Tag
 import android.os.Bundle
 import android.os.SystemClock
 
-/** NFC読み取りユーティリティ。 */
+/**
+ * NFC ReaderModeの開始・停止と重複読み取り抑止を提供するユーティリティ。
+ */
 class NfcUtil(context: Context) {
 
+    /** ReaderModeに必要なActivity参照。 */
     private val activity = context as? Activity
+
+    /** 端末のNFCアダプター。 */
     private val nfcAdapter: NfcAdapter? = NfcAdapter.getDefaultAdapter(context)
+
+    /** 直近で読み取ったタグID。 */
     private var lastTagHex: String? = null
+
+    /** 直近読取時刻(経過ミリ秒)。 */
     private var lastReadAtMs: Long = 0L
 
+    /**
+     * NFC読み取りを開始する。
+     */
     fun start(onRead: (tag: Tag) -> Unit, onFailure: (message: String) -> Unit) {
         val currentActivity = activity
         if (currentActivity == null) {
@@ -52,11 +64,15 @@ class NfcUtil(context: Context) {
         )
     }
 
+    /**
+     * NFC読み取りを停止する。
+     */
     fun stop() {
         activity?.let { nfcAdapter?.disableReaderMode(it) }
     }
 
     private companion object {
+        /** 同一タグ再読込を抑止する閾値(ms)。 */
         private const val DUPLICATE_SUPPRESS_MS = 800L
     }
 }
