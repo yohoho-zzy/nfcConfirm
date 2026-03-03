@@ -5,6 +5,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.text.InputFilter
+import android.text.Spanned
 import android.provider.Settings
 import android.telephony.TelephonyManager
 import android.view.LayoutInflater
@@ -26,6 +28,7 @@ import com.hitachi.confirmnfc.viewmodel.LoginViewModel
 import com.hitachi.confirmnfc.viewmodel.MainViewModel
 import com.hitachi.confirmnfc.viewmodel.NfcConfirmViewModel
 import com.hitachi.confirmnfc.viewmodel.ViewModelFactory
+import java.util.regex.Pattern
 
 class LoginFragment : Fragment() {
 
@@ -57,6 +60,7 @@ class LoginFragment : Fragment() {
     ): View {
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
         binding.loginViewModel = viewModel
+        binding.userIdInput.filters = arrayOf(EditTextFilter("^[!-~]{0,128}$"))
         return binding.root
     }
 
@@ -124,5 +128,28 @@ class LoginFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    /**
+     * 文字種入力制御フィルター。
+     */
+    inner class EditTextFilter(private val regex: String) : InputFilter {
+        override fun filter(
+            source: CharSequence?,
+            start: Int,
+            end: Int,
+            dest: Spanned?,
+            dstart: Int,
+            dend: Int
+        ): CharSequence? {
+            val builder = StringBuilder(dest ?: "")
+            builder.replace(dstart, dend, source?.subSequence(start, end).toString())
+            val newText = builder.toString()
+            return if (Pattern.matches(regex, newText)) {
+                null
+            } else {
+                ""
+            }
+        }
     }
 }
