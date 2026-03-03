@@ -3,14 +3,8 @@
     package="com.hitachi.confirmnfc">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.NFC" />
-    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
-
-    <uses-feature
-        android:name="android.hardware.nfc"
-        android:required="true" />
 
     <application
         android:allowBackup="true"

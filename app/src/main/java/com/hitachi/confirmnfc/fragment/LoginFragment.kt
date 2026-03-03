@@ -15,12 +15,14 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import com.hitachi.confirmnfc.R
 import com.hitachi.confirmnfc.databinding.FragmentLoginBinding
 import com.hitachi.confirmnfc.viewmodel.LoginCommand
 import com.hitachi.confirmnfc.viewmodel.LoginState
+import com.hitachi.confirmnfc.viewmodel.ActionEnum
+import com.hitachi.confirmnfc.viewmodel.FragmentOpCmd
 import com.hitachi.confirmnfc.viewmodel.LoginViewModel
+import com.hitachi.confirmnfc.viewmodel.MainViewModel
 import com.hitachi.confirmnfc.viewmodel.NfcConfirmViewModel
 
 class LoginFragment : Fragment() {
@@ -30,6 +32,7 @@ class LoginFragment : Fragment() {
 
     private val viewModel: LoginViewModel by viewModels()
     private val nfcViewModel: NfcConfirmViewModel by activityViewModels()
+    private val mainViewModel: MainViewModel by activityViewModels()
 
     private val permissions = arrayOf(
         Manifest.permission.READ_PHONE_NUMBERS,
@@ -66,7 +69,7 @@ class LoginFragment : Fragment() {
             when (state) {
                 LoginState.Success -> {
                     nfcViewModel.resetUi()
-                    findNavController().navigate(R.id.action_loginFragment_to_nfcConfirmFragment)
+                    mainViewModel.changeFragment(ActionEnum.NFC_CONFIRM, FragmentOpCmd.OP_MOVE)
                     viewModel.resetState()
                 }
 
