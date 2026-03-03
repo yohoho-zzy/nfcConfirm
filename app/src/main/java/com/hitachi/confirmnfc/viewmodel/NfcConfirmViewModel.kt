@@ -5,10 +5,11 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.hitachi.confirmnfc.R
+import com.hitachi.confirmnfc.model.CsvRecord
+import java.util.Locale
 
 /**
  * NFC確認画面の状態を保持するViewModel。
- * 実機NFC処理は行わず、画面表示用の状態のみ管理する。
  */
 class NfcConfirmViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -26,9 +27,6 @@ class NfcConfirmViewModel(application: Application) : AndroidViewModel(applicati
     private val _addressText = MutableLiveData(app.getString(R.string.serial_default))
     val addressText: LiveData<String> = _addressText
 
-    private val _notFoundDialogMessage = MutableLiveData<String?>(null)
-    val notFoundDialogMessage: LiveData<String?> = _notFoundDialogMessage
-
     val hasMultipleItems = MutableLiveData(false)
     val hasAnyItems = MutableLiveData(false)
     val pageIndicator = MutableLiveData("")
@@ -38,8 +36,31 @@ class NfcConfirmViewModel(application: Application) : AndroidViewModel(applicati
         resetUi()
     }
 
-    fun onNotFoundDialogShown() {
-        _notFoundDialogMessage.value = null
+    /** NFCタグを読み取り、CSVデータと照合して画面表示を更新する。 */
+    fun onTagRead(tagHex: String) {
+        val normalizedTag = normalizeKey(tagHex)
+        val matched = LoginSessionStore.csvRecords.firstOrNull { record ->
+            record.columns.drop(3).any { key -> normalizeKey(key) == normalizedTag }
+        }
+
+        if (matched == null) {
+            _nfcMessage.postValue(app.getString(R.string.not_registered))
+            _nameText.postValue(app.getString(R.string.serial_default))
+            _customerCodeText.postValue(app.getString(R.string.serial_default))
+            _addressText.postValue(app.getString(R.string.serial_default))
+            hasAnyItems.postValue(false)
+            hasMultipleItems.postValue(false)
+            pageIndicator.postValue("")
+            return
+        }
+
+        _nfcMessage.postValue(app.getString(R.string.match_success, tagHex))
+        _nameText.postValue(matched.columnOrDefault(0, app.getString(R.string.serial_default)))
+        _customerCodeText.postValue(matched.columnOrDefault(1, app.getString(R.string.serial_default)))
+        _addressText.postValue(matched.columnOrDefault(2, app.getString(R.string.serial_default)))
+        hasAnyItems.postValue(true)
+        hasMultipleItems.postValue(false)
+        pageIndicator.postValue("")
     }
 
     /** ログアウト時に画面状態を初期化する。 */
@@ -51,6 +72,15 @@ class NfcConfirmViewModel(application: Application) : AndroidViewModel(applicati
         hasMultipleItems.value = false
         hasAnyItems.value = false
         pageIndicator.value = ""
-        _notFoundDialogMessage.value = null
+    }
+
+    private fun normalizeKey(value: String): String {
+        return value.trim()
+            .replace(Regex("[^0-9A-Fa-f]"), "")
+            .uppercase(Locale.US)
+    }
+
+    private fun CsvRecord.columnOrDefault(index: Int, default: String): String {
+        return columns.getOrNull(index)?.takeIf { it.isNotBlank() } ?: default
     }
 }

@@ -1,15 +1,16 @@
 package com.hitachi.confirmnfc.fragment
 
-import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.hitachi.confirmnfc.R
 import com.hitachi.confirmnfc.databinding.FragmentNfcConfirmBinding
+import com.hitachi.confirmnfc.util.NfcUtil
 import com.hitachi.confirmnfc.viewmodel.NfcConfirmViewModel
 
 class NfcConfirmFragment : Fragment() {
@@ -23,7 +24,7 @@ class NfcConfirmFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: NfcConfirmViewModel by activityViewModels()
-    private var notFoundDialog: AlertDialog? = null
+    private var nfcUtil: NfcUtil? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,32 +36,32 @@ class NfcConfirmFragment : Fragment() {
         binding.nfcViewModel = viewModel
 
         viewModel.init()
+        nfcUtil = NfcUtil(requireActivity())
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onResume() {
+        super.onResume()
+        nfcUtil?.start(
+            onRead = { tag ->
+                val sn = tag.id.joinToString("") { "%02X".format(it.toInt() and 0xFF) }
+                viewModel.onTagRead(sn)
+            },
+            onFailure = { message ->
+                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+            }
+        )
+    }
 
-        viewModel.notFoundDialogMessage.observe(viewLifecycleOwner) { message ->
-            if (message.isNullOrBlank()) return@observe
-
-            notFoundDialog?.dismiss()
-            notFoundDialog = AlertDialog.Builder(requireContext())
-                .setMessage(message)
-                .setPositiveButton(android.R.string.ok) { _, _ ->
-                    viewModel.onNotFoundDialogShown()
-                }
-                .setOnDismissListener {
-                    viewModel.onNotFoundDialogShown()
-                }
-                .show()
-        }
+    override fun onPause() {
+        nfcUtil?.stop()
+        super.onPause()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        notFoundDialog?.dismiss()
-        notFoundDialog = null
+        nfcUtil?.stop()
+        nfcUtil = null
         _binding = null
     }
 }
