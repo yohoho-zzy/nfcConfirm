@@ -5,7 +5,6 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
-import androidx.lifecycle.LiveData
 import com.hitachi.confirmnfc.R
 
 /**
@@ -14,12 +13,12 @@ import com.hitachi.confirmnfc.R
 @BindingAdapter(value = ["scanItems", "selectedIndex"])
 fun bindScanItems(
     container: LinearLayout,
-    items: LiveData<List<NfcConfirmViewModel.ScanItem>>?,
-    selectedIndex: LiveData<Int>?
+    items: List<NfcConfirmViewModel.ScanItem>?,
+    selectedIndex: Int?
 ) {
     container.removeAllViews()
-    val currentItems = items?.value.orEmpty()
-    val currentSelected = selectedIndex?.value ?: -1
+    val currentItems = items.orEmpty()
+    val currentSelected = selectedIndex ?: -1
 
     currentItems.forEachIndexed { index, item ->
         val row = TextView(container.context).apply {
