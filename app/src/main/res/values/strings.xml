@@ -35,8 +35,6 @@
     <string name="csv_empty">CSVが空です</string>
     <string name="csv_fetch_failed">CSV取得に失敗しました</string>
     <string name="top_title_nfc_confirm">NFC確認</string>
-    <string name="previous_button">◀</string>
-    <string name="next_button">▶</string>
     <string name="page_indicator">%1$d/%2$d</string>
     <string name="nfc_row_format">NFC%1$d: %2$s</string>
 </resources>
