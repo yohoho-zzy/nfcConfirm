@@ -21,6 +21,7 @@ import com.hitachi.confirmnfc.R
 import com.hitachi.confirmnfc.databinding.FragmentLoginBinding
 import com.hitachi.confirmnfc.util.ProgressDialog
 import com.hitachi.confirmnfc.viewmodel.LoginViewModel
+import com.hitachi.confirmnfc.viewmodel.ViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -35,7 +36,7 @@ class LoginFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel by lazy {
-        ViewModelProvider(this)[LoginViewModel::class.java]
+        ViewModelProvider(this, ViewModelFactory(requireActivity()))[LoginViewModel::class.java]
     }
 
     private val permissions = arrayOf(

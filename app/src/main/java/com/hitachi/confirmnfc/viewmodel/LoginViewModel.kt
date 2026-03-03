@@ -1,7 +1,6 @@
 package com.hitachi.confirmnfc.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import android.app.Activity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.hitachi.confirmnfc.R
@@ -18,9 +17,9 @@ object LoginSessionStore {
  * ログイン画面の状態と処理を管理するViewModel。
  * 画面側には最小限の副作用処理だけを残し、判定ロジックはここに集約する。
  */
-class LoginViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository = LoginRepository(application)
-    private val app = getApplication<Application>()
+class LoginViewModel(context: Activity) : BaseViewModel(context) {
+    private val app = context.applicationContext as android.app.Application
+    private val repository = LoginRepository(app)
 
     val organizationCode = MutableLiveData("")
     val phoneNumber = MutableLiveData("")
