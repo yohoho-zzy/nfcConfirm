@@ -8,9 +8,11 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.commit
 import com.hitachi.confirmnfc.R
 import com.hitachi.confirmnfc.databinding.FragmentNfcConfirmBinding
 import com.hitachi.confirmnfc.util.NfcUtil
+import com.hitachi.confirmnfc.viewmodel.LoginSessionStore
 import com.hitachi.confirmnfc.viewmodel.NfcConfirmViewModel
 
 class NfcConfirmFragment : Fragment() {
@@ -42,10 +44,19 @@ class NfcConfirmFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.lifecycleOwner = viewLifecycleOwner
+
+        if (LoginSessionStore.csvRecords.isEmpty()) {
+            parentFragmentManager.commit {
+                setReorderingAllowed(true)
+                replace(R.id.frameContainer, LoginFragment())
+            }
+        }
     }
 
     override fun onResume() {
         super.onResume()
+        if (LoginSessionStore.csvRecords.isEmpty()) return
+
         nfcUtil?.start(
             onRead = { tag ->
                 val sn = tag.id.joinToString("") { "%02X".format(it.toInt() and 0xFF) }

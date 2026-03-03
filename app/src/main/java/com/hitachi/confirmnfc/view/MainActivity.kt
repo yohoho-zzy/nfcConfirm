@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.hitachi.confirmnfc.R
 import com.hitachi.confirmnfc.enums.ActionEnum
+import com.hitachi.confirmnfc.viewmodel.LoginSessionStore
 import com.hitachi.confirmnfc.viewmodel.MainViewModel
 import com.hitachi.confirmnfc.viewmodel.ViewModelFactory
 
@@ -31,14 +32,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun ensureInitialLoginPage(savedInstanceState: Bundle?) {
-        if (savedInstanceState != null) {
-            Log.i(TAG, "ensureInitialLoginPage skipped (restored state)")
-            return
-        }
-
         val currentFragment = supportFragmentManager.findFragmentById(R.id.frameContainer)
-        Log.i(TAG, "ensureInitialLoginPage current=${currentFragment?.javaClass?.simpleName}")
-        if (currentFragment == null) {
+        val shouldForceLogin = LoginSessionStore.csvRecords.isEmpty() && currentFragment !is LoginFragment
+        Log.i(
+            TAG,
+            "ensureInitialLoginPage restored=${savedInstanceState != null}, " +
+                "current=${currentFragment?.javaClass?.simpleName}, forceLogin=$shouldForceLogin"
+        )
+
+        if (currentFragment == null || shouldForceLogin) {
             supportFragmentManager.beginTransaction()
                 .setReorderingAllowed(true)
                 .replace(R.id.frameContainer, LoginFragment(), ActionEnum.LOGIN.toString())
