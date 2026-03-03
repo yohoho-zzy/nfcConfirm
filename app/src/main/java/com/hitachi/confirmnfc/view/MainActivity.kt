@@ -31,10 +31,6 @@ class MainActivity : AppCompatActivity() {
         ensureInitialLoginPage(savedInstanceState)
     }
 
-    /**
-     * 首次启动时用 commitNow 立即挂载 LoginFragment，避免首屏显示依赖异步事务时序。
-     * 进程恢复后如发现容器为空，同步补回登录页兜底。
-     */
     private fun ensureInitialLoginPage(savedInstanceState: Bundle?) {
         val currentFragment = supportFragmentManager.findFragmentById(R.id.frameContainer)
         Log.i(TAG, "ensureInitialLoginPage current=${currentFragment?.javaClass?.simpleName}")
