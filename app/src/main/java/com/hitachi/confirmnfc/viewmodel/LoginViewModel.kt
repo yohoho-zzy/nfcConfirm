@@ -52,8 +52,8 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
     private var phonePermissionDenied = false
 
-    /** 初回表示時の権限状態を反映する。 */
-    fun onScreenStarted(hasPermission: Boolean, detectedPhoneNumber: String?) {
+    /** 初期処理。 */
+    fun init(hasPermission: Boolean, detectedPhoneNumber: String?) {
         if (hasPermission) {
             applyPhonePermissionResult(true, detectedPhoneNumber)
         } else {
