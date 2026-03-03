@@ -16,6 +16,26 @@ fun bindScanItems(
     items: List<NfcConfirmViewModel.ScanItem>?,
     selectedIndex: Int?
 ) {
+    renderScanItems(container, items?.value, selectedIndex?.value)
+}
+
+/**
+ * LiveData を `.value` 展開して渡すレイアウト式向けのオーバーロード。
+ */
+@BindingAdapter(value = ["scanItems", "selectedIndex"])
+fun bindScanItems(
+    container: LinearLayout,
+    items: List<NfcConfirmViewModel.ScanItem>?,
+    selectedIndex: Int?
+) {
+    renderScanItems(container, items, selectedIndex)
+}
+
+private fun renderScanItems(
+    container: LinearLayout,
+    items: List<NfcConfirmViewModel.ScanItem>?,
+    selectedIndex: Int?
+) {
     container.removeAllViews()
     val currentItems = items.orEmpty()
     val currentSelected = selectedIndex ?: -1
