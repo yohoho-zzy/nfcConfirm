@@ -1,4 +1,4 @@
-package com.hitachi.confirmnfc.ui.fragment
+package com.hitachi.confirmnfc.fragment
 
 import android.app.AlertDialog
 import android.os.Bundle
@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.hitachi.confirmnfc.databinding.FragmentNfcConfirmBinding
-import com.hitachi.confirmnfc.ui.viewmodel.NfcConfirmViewModel
+import com.hitachi.confirmnfc.viewmodel.NfcConfirmViewModel
 
 class NfcConfirmFragment : Fragment() {
 

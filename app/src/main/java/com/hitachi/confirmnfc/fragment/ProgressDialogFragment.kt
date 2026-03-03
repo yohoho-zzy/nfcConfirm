@@ -1,4 +1,4 @@
-package com.hitachi.confirmnfc.ui.fragment
+package com.hitachi.confirmnfc.fragment
 
 import android.app.Dialog
 import android.os.Bundle

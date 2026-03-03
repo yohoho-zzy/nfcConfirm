@@ -1,6 +1,6 @@
 @file:JvmName("NfcConfirmBindingAdapters")
 
-package com.hitachi.confirmnfc.ui.viewmodel
+package com.hitachi.confirmnfc.adapter
 
 import android.graphics.Typeface
 import android.view.View
@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import androidx.lifecycle.LiveData
 import com.hitachi.confirmnfc.R
+import com.hitachi.confirmnfc.viewmodel.NfcConfirmViewModel
 
 /**
  * NFC読み取り履歴を縦並びのTextViewとして描画するBindingAdapter。
