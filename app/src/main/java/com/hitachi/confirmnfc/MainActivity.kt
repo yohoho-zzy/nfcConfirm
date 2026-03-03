@@ -11,7 +11,7 @@ import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
-import com.hitachi.confirmnfc.ui.viewmodel.NfcConfirmViewModel
+import com.hitachi.confirmnfc.viewmodel.NfcConfirmViewModel
 
 /**
  * 画面遷移はNavigationに委譲し、ActivityはNFC Intent受け取りだけを担当する。

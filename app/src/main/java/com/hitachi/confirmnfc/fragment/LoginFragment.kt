@@ -1,4 +1,4 @@
-package com.hitachi.confirmnfc.ui.fragment
+package com.hitachi.confirmnfc.fragment
 
 import android.Manifest
 import android.content.Intent
@@ -18,10 +18,10 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.hitachi.confirmnfc.R
 import com.hitachi.confirmnfc.databinding.FragmentLoginBinding
-import com.hitachi.confirmnfc.ui.viewmodel.LoginCommand
-import com.hitachi.confirmnfc.ui.viewmodel.LoginState
-import com.hitachi.confirmnfc.ui.viewmodel.LoginViewModel
-import com.hitachi.confirmnfc.ui.viewmodel.NfcConfirmViewModel
+import com.hitachi.confirmnfc.viewmodel.LoginCommand
+import com.hitachi.confirmnfc.viewmodel.LoginState
+import com.hitachi.confirmnfc.viewmodel.LoginViewModel
+import com.hitachi.confirmnfc.viewmodel.NfcConfirmViewModel
 
 class LoginFragment : Fragment() {
 

@@ -1,4 +1,4 @@
-package com.hitachi.confirmnfc.ui.viewmodel
+package com.hitachi.confirmnfc.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel

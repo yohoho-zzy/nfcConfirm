@@ -5,7 +5,7 @@
     <data>
         <variable
             name="nfcViewModel"
-            type="com.hitachi.confirmnfc.ui.viewmodel.NfcConfirmViewModel" />
+            type="com.hitachi.confirmnfc.viewmodel.NfcConfirmViewModel" />
     </data>
 
     <LinearLayout
