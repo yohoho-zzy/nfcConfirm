@@ -18,16 +18,20 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.hitachi.confirmnfc.R
 import com.hitachi.confirmnfc.databinding.FragmentLoginBinding
 import com.hitachi.confirmnfc.enums.ActionEnum
 import com.hitachi.confirmnfc.enums.FragmentOpCmd
+import com.hitachi.confirmnfc.util.ProgressDialog
 import com.hitachi.confirmnfc.viewmodel.LoginCommand
 import com.hitachi.confirmnfc.viewmodel.LoginState
 import com.hitachi.confirmnfc.viewmodel.LoginViewModel
 import com.hitachi.confirmnfc.viewmodel.MainViewModel
 import com.hitachi.confirmnfc.viewmodel.ViewModelFactory
-import com.hitachi.confirmnfc.util.ProgressDialog
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.regex.Pattern
 
 class LoginFragment : Fragment() {
@@ -58,7 +62,12 @@ class LoginFragment : Fragment() {
         ActivityResultContracts.RequestMultiplePermissions()
     ) { result ->
         val granted = permissions.all { result[it] == true }
-        viewModel.applyPhonePermissionResult(granted, getPhoneNumber())
+        if (granted) {
+            viewModel.applyPhonePermissionResult(true, null)
+            fetchPhoneNumberAsync()
+        } else {
+            viewModel.applyPhonePermissionResult(false, null)
+        }
     }
 
     override fun onCreateView(
@@ -84,7 +93,12 @@ class LoginFragment : Fragment() {
         if (savedInstanceState == null) {
             val hasPermission = hasPhonePermission()
             Log.i(TAG, "LoginFragment init. hasPermission=$hasPermission")
-            viewModel.init(hasPermission, getPhoneNumber())
+            if (hasPermission) {
+                viewModel.init(true, null)
+                fetchPhoneNumberAsync()
+            } else {
+                viewModel.init(false, null)
+            }
         }
     }
 
@@ -114,10 +128,21 @@ class LoginFragment : Fragment() {
                     Log.i(TAG, "Requesting phone permissions")
                     permissionLauncher.launch(permissions)
                 }
+
                 LoginCommand.OpenPermissionSettings -> openAppPermissionSettings()
                 null -> Unit
             }
             viewModel.consumeCommand()
+        }
+    }
+
+    private fun fetchPhoneNumberAsync() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val phoneNumber = withContext(Dispatchers.IO) {
+                readPhoneNumberOrNull()
+            }
+            Log.i(TAG, "Phone number loaded. hasValue=${!phoneNumber.isNullOrBlank()}")
+            viewModel.applyPhonePermissionResult(true, phoneNumber)
         }
     }
 
@@ -127,7 +152,7 @@ class LoginFragment : Fragment() {
         }
     }
 
-    private fun getPhoneNumber(): String? {
+    private fun readPhoneNumberOrNull(): String? {
         if (!hasPhonePermission()) return null
         val telephonyManager = requireContext().getSystemService(TelephonyManager::class.java)
         return runCatching { telephonyManager?.line1Number }.getOrNull()
