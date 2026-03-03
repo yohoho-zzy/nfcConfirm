@@ -5,7 +5,7 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModel
-import com.hitachi.confirmnfc.MainActivity
+import com.hitachi.confirmnfc.view.MainActivity
 import com.hitachi.confirmnfc.enums.ActionEnum
 import com.hitachi.confirmnfc.enums.FragmentOpCmd
 import java.lang.ref.WeakReference

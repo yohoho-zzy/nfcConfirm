@@ -1,4 +1,4 @@
-package com.hitachi.confirmnfc.fragment
+package com.hitachi.confirmnfc.view
 
 import android.Manifest
 import android.content.Intent
@@ -17,7 +17,6 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.hitachi.confirmnfc.MainActivity
 import com.hitachi.confirmnfc.R
 import com.hitachi.confirmnfc.databinding.FragmentLoginBinding
 import com.hitachi.confirmnfc.enums.ActionEnum

@@ -8,7 +8,7 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
-import com.hitachi.confirmnfc.MainActivity
+import com.hitachi.confirmnfc.view.MainActivity
 import com.hitachi.confirmnfc.R
 
 class ProgressDialog {

@@ -1,4 +1,4 @@
-package com.hitachi.confirmnfc.fragment
+package com.hitachi.confirmnfc.view
 
 import android.os.Bundle
 import android.view.LayoutInflater

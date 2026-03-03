@@ -1,4 +1,4 @@
-package com.hitachi.confirmnfc.data
+package com.hitachi.confirmnfc.repository
 
 import android.content.Context
 import com.hitachi.confirmnfc.R

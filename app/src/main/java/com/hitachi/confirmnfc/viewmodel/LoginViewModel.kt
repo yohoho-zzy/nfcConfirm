@@ -6,7 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.hitachi.confirmnfc.R
-import com.hitachi.confirmnfc.data.LoginRepository
+import com.hitachi.confirmnfc.repository.LoginRepository
 import com.hitachi.confirmnfc.model.CsvRecord
 import kotlinx.coroutines.launch
 

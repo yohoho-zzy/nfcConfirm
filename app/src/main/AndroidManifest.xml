@@ -16,7 +16,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NfcConfirm">
         <activity
-            android:name=".MainActivity"
+            android:name=".view.MainActivity"
             android:exported="true"
             android:launchMode="singleTop">
             <intent-filter>

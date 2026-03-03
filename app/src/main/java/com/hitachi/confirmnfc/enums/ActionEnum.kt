@@ -1,8 +1,8 @@
 package com.hitachi.confirmnfc.enums
 
 import androidx.fragment.app.Fragment
-import com.hitachi.confirmnfc.fragment.LoginFragment
-import com.hitachi.confirmnfc.fragment.NfcConfirmFragment
+import com.hitachi.confirmnfc.view.LoginFragment
+import com.hitachi.confirmnfc.view.NfcConfirmFragment
 
 enum class ActionEnum {
     LOGIN,
