@@ -3,8 +3,8 @@ package com.hitachi.confirmnfc
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import com.hitachi.confirmnfc.viewmodel.ActionEnum
-import com.hitachi.confirmnfc.viewmodel.FragmentOpCmd
+import com.hitachi.confirmnfc.enums.ActionEnum
+import com.hitachi.confirmnfc.enums.FragmentOpCmd
 import com.hitachi.confirmnfc.viewmodel.MainViewModel
 import com.hitachi.confirmnfc.viewmodel.ViewModelFactory
 

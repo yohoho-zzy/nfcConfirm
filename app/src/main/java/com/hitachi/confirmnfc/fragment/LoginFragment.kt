@@ -16,18 +16,18 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
+import com.hitachi.confirmnfc.MainActivity
 import com.hitachi.confirmnfc.R
 import com.hitachi.confirmnfc.databinding.FragmentLoginBinding
-import com.hitachi.confirmnfc.viewmodel.ActionEnum
-import com.hitachi.confirmnfc.viewmodel.FragmentOpCmd
+import com.hitachi.confirmnfc.enums.ActionEnum
+import com.hitachi.confirmnfc.enums.FragmentOpCmd
 import com.hitachi.confirmnfc.viewmodel.LoginCommand
 import com.hitachi.confirmnfc.viewmodel.LoginState
 import com.hitachi.confirmnfc.viewmodel.LoginViewModel
 import com.hitachi.confirmnfc.viewmodel.MainViewModel
-import com.hitachi.confirmnfc.viewmodel.NfcConfirmViewModel
 import com.hitachi.confirmnfc.viewmodel.ViewModelFactory
+import com.hitachi.confirmnfc.util.ProgressDialog
 import java.util.regex.Pattern
 
 class LoginFragment : Fragment() {
@@ -43,7 +43,6 @@ class LoginFragment : Fragment() {
     private val viewModel by lazy {
         ViewModelProvider(this)[LoginViewModel::class.java]
     }
-    private val nfcViewModel: NfcConfirmViewModel by activityViewModels()
     private val mainViewModel by lazy {
         ViewModelProvider(requireActivity(), ViewModelFactory(requireActivity()))[MainViewModel::class.java]
     }
@@ -78,6 +77,7 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        ProgressDialog.init(requireActivity() as MainActivity)
         observeState()
     }
 
@@ -85,7 +85,6 @@ class LoginFragment : Fragment() {
         viewModel.loginState.observe(viewLifecycleOwner) { state ->
             when (state) {
                 LoginState.Success -> {
-                    nfcViewModel.resetUi()
                     mainViewModel.changeFragment(ActionEnum.NFC_CONFIRM, FragmentOpCmd.OP_MOVE)
                     viewModel.resetState()
                 }
@@ -95,12 +94,10 @@ class LoginFragment : Fragment() {
         }
 
         viewModel.progressMessage.observe(viewLifecycleOwner) { message ->
-            val existing = childFragmentManager.findFragmentByTag(ProgressDialogFragment.TAG)
             if (message.isNullOrBlank()) {
-                (existing as? ProgressDialogFragment)?.dismissAllowingStateLoss()
-            } else if (existing == null) {
-                ProgressDialogFragment.newInstance(message)
-                    .show(childFragmentManager, ProgressDialogFragment.TAG)
+                ProgressDialog.hide()
+            } else {
+                ProgressDialog.show(R.string.login_in_progress)
             }
         }
 
@@ -136,6 +133,7 @@ class LoginFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        ProgressDialog.hide()
         _binding = null
     }
 
