@@ -13,8 +13,10 @@ import com.hitachi.confirmnfc.viewmodel.NfcConfirmViewModel
 /**
  * NFC読み取り履歴を縦並びのTextViewとして描画するBindingAdapter群。
  *
- * DataBindingのLiveData自動アンラップを前提とし、XML側は
- * `@{nfcViewModel.scanItems}` / `@{nfcViewModel.selectedIndex}` を渡す。
+ * プロジェクト/AGPのDataBinding解決差異で
+ * - LiveData<List<ScanItem>> / LiveData<Int>
+ * - List<ScanItem> / Int
+ * のどちらが渡ってきても描画できるように、受け口を `Any?` にして正規化する。
  */
 object NfcConfirmBindingAdapters {
 
@@ -22,30 +24,33 @@ object NfcConfirmBindingAdapters {
     @BindingAdapter(value = ["scanItems", "selectedIndex"], requireAll = false)
     fun bindScanItems(
         container: LinearLayout,
-        items: List<NfcConfirmViewModel.ScanItem>?,
-        selectedIndex: Int?
+        itemsSource: Any?,
+        selectedIndexSource: Any?
     ) {
+        val items = when (itemsSource) {
+            is LiveData<*> -> itemsSource.value as? List<NfcConfirmViewModel.ScanItem>
+            is List<*> -> itemsSource.filterIsInstance<NfcConfirmViewModel.ScanItem>()
+            else -> null
+        }.orEmpty()
+
+        val selectedIndex = when (selectedIndexSource) {
+            is LiveData<*> -> selectedIndexSource.value as? Int
+            is Int -> selectedIndexSource
+            else -> null
+        } ?: -1
+
         container.removeAllViews()
-
-        val currentItems = items.orEmpty()
-        val currentSelectedIndex = selectedIndex ?: -1
-
-        currentItems.forEachIndexed { index, item ->
+        items.forEachIndexed { index, item ->
             val row = TextView(container.context).apply {
                 text = context.getString(R.string.nfc_row_format, index + 1, item.serial)
                 textSize = 18f
                 setPadding(12, 12, 12, 12)
-                typeface = if (index == currentSelectedIndex) {
-                    Typeface.DEFAULT_BOLD
-                } else {
-                    Typeface.DEFAULT
-                }
+                typeface = if (index == selectedIndex) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
             }
             container.addView(row)
         }
     }
 
-    /** BooleanをViewの表示/非表示に変換するBindingAdapter。 */
     @JvmStatic
     @BindingAdapter("visibleOrGone")
     fun bindVisibleOrGone(view: View, visible: Boolean?) {
