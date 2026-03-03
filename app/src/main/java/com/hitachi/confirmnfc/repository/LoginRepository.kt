@@ -12,90 +12,83 @@ import java.net.URL
 import java.util.Base64
 
 /**
- * ログイン時にCSVデータを取得するRepositoryクラス
+ * ログイン時にCSVデータを取得するRepositoryクラス。
  *
- * ・CloudFront上のCSVファイルを取得
- * ・Basic認証を使用してアクセス
- * ・最大3回までリトライ
- * ・CSVをCsvRecordのリストへ変換して返却
+ * 主な処理:
+ * - CloudFront上のCSVへBasic認証付きでアクセス
+ * - 通信失敗時は最大3回までリトライ
+ * - CSVを1行ずつ `CsvRecord` へ変換して返却
  */
-class LoginRepository(private val context: Context) {
+class LoginRepository(
+    /** エラーメッセージ取得に使うContext。 */
+    private val context: Context
+) {
 
-    // 取得対象のCSVファイルURL
+    /** 取得対象CSVのURL。 */
     private val csvUrl = "https://d2kkch5g6rdzfp.cloudfront.net/abcdefg.csv"
 
     /**
-     * CSVデータを取得する
-     *
-     * @param userId       ユーザーID（Basic認証用）
-     * @param phoneNumber  電話番号（Basic認証用）
-     * @return Result<List<CsvRecord>>
+     * CSVデータを取得してパース結果を返す。
      */
     suspend fun fetchCsv(
         userId: String,
         phoneNumber: String
     ): Result<List<CsvRecord>> = withContext(Dispatchers.IO) {
-
-        // 最大リトライ回数
+        // 一時的な通信障害を考慮し、最大3回リトライする。
         val maxRetry = 3
 
         repeat(maxRetry) { index ->
             try {
-
-                // HTTP接続を生成
+                // 認証付きのHTTP接続を組み立てる。
                 val connection = (URL(csvUrl).openConnection() as HttpURLConnection).apply {
-                    connectTimeout = 5000   // 接続タイムアウト（5秒）
-                    readTimeout = 5000      // 読み取りタイムアウト（5秒）
+                    connectTimeout = 5000
+                    readTimeout = 5000
                     requestMethod = "GET"
 
-                    // Basic認証ヘッダーを設定
+                    // userId:phoneNumber をBase64化してAuthorizationヘッダーへ設定。
                     val token = Base64.getEncoder()
                         .encodeToString("$userId:$phoneNumber".toByteArray())
                     setRequestProperty("Authorization", "Basic $token")
                 }
 
-                // レスポンスコード取得
+                // HTTPステータスを評価し、2xxのみ成功扱いにする。
                 val code = connection.responseCode
 
-                // HTTP 2xx の場合のみ成功扱い
                 if (code in 200..299) {
-
-                    // CSVを1行ずつ読み込み
+                    // レスポンス本文をCSVとして読み取り、空行を除外する。
                     val records = connection.inputStream
                         .bufferedReader()
                         .use(BufferedReader::readLines)
-                        .filter { it.isNotBlank() } // 空行除外
+                        .filter { it.isNotBlank() }
                         .map { line ->
-                            // カンマ区切りで分割し、前後の空白を除去
                             CsvRecord(
                                 line.split(",").map { it.trim() }
                             )
                         }
 
-                    // データが存在する場合は成功
+                    // レコードが1件以上あれば成功として返却する。
                     if (records.isNotEmpty()) {
                         return@withContext Result.success(records)
                     }
 
-                    // CSVが空の場合
+                    // 正常レスポンスだがデータが空の場合は業務エラーとする。
                     return@withContext Result.failure(
                         IllegalStateException(
                             context.getString(R.string.csv_empty)
                         )
                     )
                 }
-
             } catch (_: Exception) {
-                // 例外発生時はリトライへ
+                // 通信失敗時はリトライで吸収する。
             }
 
-            // 最終リトライでない場合は1.5秒待機
+            // 最終試行以外は少し待ってから再試行する。
             if (index < maxRetry - 1) {
                 delay(1500)
             }
         }
 
-        // すべてのリトライが失敗した場合
+        // すべての試行が失敗した場合の最終エラー。
         Result.failure(
             IllegalStateException(
                 context.getString(R.string.csv_fetch_failed)

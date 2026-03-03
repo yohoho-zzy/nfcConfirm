@@ -4,42 +4,65 @@ import android.app.Activity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.hitachi.confirmnfc.R
-import com.hitachi.confirmnfc.repository.LoginRepository
 import com.hitachi.confirmnfc.model.CsvRecord
+import com.hitachi.confirmnfc.repository.LoginRepository
 import com.hitachi.confirmnfc.util.ProgressDialog
 import kotlinx.coroutines.launch
 
+/**
+ * ログイン成功後に利用するCSV一覧を保持するセッション領域。
+ */
 object LoginSessionStore {
+    /** ログインで取得したCSVレコード。 */
     var csvRecords: List<CsvRecord> = emptyList()
 }
 
 /**
  * ログイン画面の状態と処理を管理するViewModel。
- * 画面側には最小限の副作用処理だけを残し、判定ロジックはここに集約する。
  */
 class LoginViewModel(context: Activity) : BaseViewModel(context) {
+
+    /** 文字列リソース参照のためのApplication。 */
     private val app = context.applicationContext as android.app.Application
+
+    /** CSV取得処理を行うRepository。 */
     private val repository = LoginRepository(app)
 
+    /** 入力された組織コード。 */
     val organizationCode = MutableLiveData("")
+
+    /** 取得した電話番号。 */
     val phoneNumber = MutableLiveData("")
+
+    /** ログイン画面に表示するメッセージ。 */
     val loginMessage = MutableLiveData("")
+
+    /** ログインボタンの文言。 */
     val loginButtonText = MutableLiveData(app.getString(R.string.login_button))
+
+    /** ログイン状態。 */
     val isLoggedIn = MutableLiveData(false)
 
+    /** 電話権限が拒否されているかどうか。 */
     var phonePermissionDenied = false
 
-    /** 初期処理。 */
+    /**
+     * 初期状態へリセットする。
+     */
     fun init() {
         organizationCode.value = ""
     }
 
-    /** 権限要求の結果をUI状態へ反映する。 */
+    /**
+     * 権限要求の結果をUI状態へ反映する。
+     */
     fun applyPhonePermissionResult(granted: Boolean) {
         if (granted) {
+            // 許可済みなら通常ログイン状態へ戻す。
             phonePermissionDenied = false
             loginMessage.value = ""
         } else {
+            // 拒否時は電話番号を破棄し、設定誘導メッセージを表示する。
             phonePermissionDenied = true
             phoneNumber.value = ""
             loginMessage.value = app.getString(R.string.phone_permission_required)
@@ -51,37 +74,50 @@ class LoginViewModel(context: Activity) : BaseViewModel(context) {
         }
     }
 
-    /** 端末から電話番号取得後にログインを継続する。 */
+    /**
+     * 電話番号取得後にログイン処理を継続する。
+     */
     fun onPhoneNumberFetched(detectedPhoneNumber: String?) {
         if (!checkOrganizationCode()) {
             return
         }
         if (detectedPhoneNumber?.isNotBlank() == true) {
+            // 入力済みの組織コード + 取得電話番号で認証を試行する。
             login(organizationCode.value!!, detectedPhoneNumber)
         } else {
+            // 電話番号未取得時はユーザーへ再確認を促す。
             loginMessage.value = app.getString(R.string.phone_number_unknown)
             ProgressDialog.hide()
         }
     }
 
+    /**
+     * CSV取得を実行してログイン可否を更新する。
+     */
     private fun login(userId: String, phoneNumber: String) {
         viewModelScope.launch {
             loginMessage.value = ""
 
+            // 認証付きでCSVを取得し、結果に応じてUI状態を切り替える。
             val result = repository.fetchCsv(userId, "09012345678")
             result.onSuccess {
+                // 成功時はセッションへ保存し、画面遷移トリガーを立てる。
                 LoginSessionStore.csvRecords = it
                 loginMessage.value = app.getString(R.string.login_success)
                 isLoggedIn.value = true
                 ProgressDialog.hide()
             }.onFailure {
+                // 失敗時は理由を表示して入力継続できる状態に保つ。
                 loginMessage.value = it.message ?: app.getString(R.string.login_failed)
                 ProgressDialog.hide()
             }
         }
     }
 
-    fun checkOrganizationCode() : Boolean {
+    /**
+     * 組織コード入力の妥当性を確認する。
+     */
+    fun checkOrganizationCode(): Boolean {
         val id = organizationCode.value?.trim().orEmpty()
         if (id.isBlank()) {
             loginMessage.value = app.getString(R.string.input_user_id_required)

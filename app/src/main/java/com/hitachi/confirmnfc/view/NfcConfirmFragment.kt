@@ -16,21 +16,34 @@ import com.hitachi.confirmnfc.viewmodel.LoginSessionStore
 import com.hitachi.confirmnfc.viewmodel.NfcConfirmViewModel
 import com.hitachi.confirmnfc.viewmodel.ViewModelFactory
 
+/**
+ * NFC読み取り結果を表示する画面Fragment。
+ */
 class NfcConfirmFragment : Fragment() {
 
     companion object {
+        /** Fragment生成用のファクトリメソッド。 */
         @JvmStatic
         fun newInstance(): NfcConfirmFragment = NfcConfirmFragment()
     }
 
+    /** ViewBindingの退避領域。 */
     private var _binding: FragmentNfcConfirmBinding? = null
+
+    /** null非許容で使うBinding参照。 */
     private val binding get() = _binding!!
 
+    /** 画面状態を管理するViewModel。 */
     private val viewModel: NfcConfirmViewModel by activityViewModels {
         ViewModelFactory(requireActivity())
     }
+
+    /** NFC ReaderModeを扱うユーティリティ。 */
     private var nfcUtil: NfcUtil? = null
 
+    /**
+     * 画面生成時にBindingとNFCユーティリティを初期化する。
+     */
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -44,6 +57,9 @@ class NfcConfirmFragment : Fragment() {
         return binding.root
     }
 
+    /**
+     * 表示後にライフサイクル所有者を設定し、未ログインならログイン画面へ戻す。
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.lifecycleOwner = viewLifecycleOwner
@@ -56,6 +72,9 @@ class NfcConfirmFragment : Fragment() {
         }
     }
 
+    /**
+     * フォアグラウンド復帰時にNFC読み取りを開始する。
+     */
     override fun onResume() {
         super.onResume()
         if (LoginSessionStore.csvRecords.isEmpty()) return
@@ -71,11 +90,17 @@ class NfcConfirmFragment : Fragment() {
         )
     }
 
+    /**
+     * バックグラウンド遷移時にNFC読み取りを停止する。
+     */
     override fun onPause() {
         nfcUtil?.stop()
         super.onPause()
     }
 
+    /**
+     * View破棄時にリソースを解放する。
+     */
     override fun onDestroyView() {
         super.onDestroyView()
         nfcUtil?.stop()
