@@ -8,25 +8,25 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
-import com.hitachi.confirmnfc.view.MainActivity
 import com.hitachi.confirmnfc.R
+import com.hitachi.confirmnfc.view.MainActivity
+import java.lang.ref.WeakReference
 
 class ProgressDialog {
     companion object {
-        private val instance: ProgressDialog? = null
-        private lateinit var alertDialog: AlertDialog
-        private lateinit var lblMessage: TextView
-        private lateinit var activity: MainActivity
+        private var alertDialog: AlertDialog? = null
+        private var lblMessage: TextView? = null
+        private var activityRef: WeakReference<MainActivity>? = null
 
         fun init(activity: MainActivity) {
-            if (instance != null) {
-                return
+            val current = activityRef?.get()
+            if (current !== activity) {
+                dismissInternal()
+                activityRef = WeakReference(activity)
             }
-            this.activity = activity
-            createProgressDialog()
         }
 
-        private fun createProgressDialog() {
+        private fun createProgressDialog(activity: MainActivity) {
             val padding = 30
             val linear = LinearLayout(activity)
             linear.orientation = LinearLayout.HORIZONTAL
@@ -51,11 +51,12 @@ class ProgressDialog {
             )
             linearParam.gravity = Gravity.CENTER
 
-            lblMessage = TextView(activity)
-            lblMessage.text = ""
-            lblMessage.setTextColor(Color.parseColor("#000000"))
-            lblMessage.textSize = 20F
-            lblMessage.layoutParams = linearParam
+            lblMessage = TextView(activity).apply {
+                text = ""
+                setTextColor(Color.parseColor("#000000"))
+                textSize = 20F
+                layoutParams = linearParam
+            }
 
             linear.addView(progressBar)
             linear.addView(lblMessage)
@@ -68,16 +69,15 @@ class ProgressDialog {
         }
 
         fun show(msgId: Int = R.string.progress_default) {
+            val activity = activityRef?.get() ?: return
             activity.runOnUiThread {
-                if (isShowing()) {
-                    alertDialog.dismiss()
-                }
-                createProgressDialog()
+                dismissInternal()
+                createProgressDialog(activity)
 
-                lblMessage.text = activity.resources.getString(msgId)
-                alertDialog.show()
+                lblMessage?.text = activity.resources.getString(msgId)
+                alertDialog?.show()
 
-                val window = alertDialog.window
+                val window = alertDialog?.window
                 if (window != null) {
                     val layoutParams = WindowManager.LayoutParams()
                     layoutParams.copyFrom(window.attributes)
@@ -89,16 +89,18 @@ class ProgressDialog {
         }
 
         fun hide() {
+            val activity = activityRef?.get() ?: return
             activity.runOnUiThread {
-                if (this::alertDialog.isInitialized && alertDialog.isShowing) {
-                    alertDialog.hide()
-                    alertDialog.dismiss()
-                }
+                dismissInternal()
             }
         }
 
-        fun isShowing(): Boolean {
-            return this::alertDialog.isInitialized && alertDialog.isShowing
+        fun isShowing(): Boolean = alertDialog?.isShowing == true
+
+        private fun dismissInternal() {
+            alertDialog?.dismiss()
+            alertDialog = null
+            lblMessage = null
         }
     }
 }

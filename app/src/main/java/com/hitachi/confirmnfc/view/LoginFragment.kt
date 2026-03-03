@@ -9,6 +9,7 @@ import android.provider.Settings
 import android.telephony.TelephonyManager
 import android.text.InputFilter
 import android.text.Spanned
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,21 +18,27 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.hitachi.confirmnfc.R
 import com.hitachi.confirmnfc.databinding.FragmentLoginBinding
 import com.hitachi.confirmnfc.enums.ActionEnum
 import com.hitachi.confirmnfc.enums.FragmentOpCmd
+import com.hitachi.confirmnfc.util.ProgressDialog
 import com.hitachi.confirmnfc.viewmodel.LoginCommand
 import com.hitachi.confirmnfc.viewmodel.LoginState
 import com.hitachi.confirmnfc.viewmodel.LoginViewModel
 import com.hitachi.confirmnfc.viewmodel.MainViewModel
 import com.hitachi.confirmnfc.viewmodel.ViewModelFactory
-import com.hitachi.confirmnfc.util.ProgressDialog
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.regex.Pattern
 
 class LoginFragment : Fragment() {
 
     companion object {
+        private const val TAG = "LoginFragment"
+
         @JvmStatic
         fun newInstance(): LoginFragment = LoginFragment()
     }
@@ -55,7 +62,12 @@ class LoginFragment : Fragment() {
         ActivityResultContracts.RequestMultiplePermissions()
     ) { result ->
         val granted = permissions.all { result[it] == true }
-        viewModel.applyPhonePermissionResult(granted, getPhoneNumber())
+        if (granted) {
+            viewModel.applyPhonePermissionResult(true, null)
+            fetchPhoneNumberAsync()
+        } else {
+            viewModel.applyPhonePermissionResult(false, null)
+        }
     }
 
     override fun onCreateView(
@@ -64,20 +76,30 @@ class LoginFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_login, container, false)
-        binding.lifecycleOwner = this
         binding.loginViewModel = viewModel
         binding.userIdInput.apply {
             filters = arrayOf(EditTextFilter("^[!-~]{0,128}$"))
         }
 
-        viewModel.init(hasPhonePermission(), getPhoneNumber())
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.lifecycleOwner = viewLifecycleOwner
         ProgressDialog.init(requireActivity() as MainActivity)
         observeState()
+
+        if (savedInstanceState == null) {
+            val hasPermission = hasPhonePermission()
+            Log.i(TAG, "LoginFragment init. hasPermission=$hasPermission")
+            if (hasPermission) {
+                viewModel.init(true, null)
+                fetchPhoneNumberAsync()
+            } else {
+                viewModel.init(false, null)
+            }
+        }
     }
 
     private fun observeState() {
@@ -102,11 +124,25 @@ class LoginFragment : Fragment() {
 
         viewModel.command.observe(viewLifecycleOwner) { command ->
             when (command) {
-                LoginCommand.RequestPhonePermission -> permissionLauncher.launch(permissions)
+                LoginCommand.RequestPhonePermission -> {
+                    Log.i(TAG, "Requesting phone permissions")
+                    permissionLauncher.launch(permissions)
+                }
+
                 LoginCommand.OpenPermissionSettings -> openAppPermissionSettings()
                 null -> Unit
             }
             viewModel.consumeCommand()
+        }
+    }
+
+    private fun fetchPhoneNumberAsync() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val phoneNumber = withContext(Dispatchers.IO) {
+                readPhoneNumberOrNull()
+            }
+            Log.i(TAG, "Phone number loaded. hasValue=${!phoneNumber.isNullOrBlank()}")
+            viewModel.applyPhonePermissionResult(true, phoneNumber)
         }
     }
 
@@ -116,7 +152,7 @@ class LoginFragment : Fragment() {
         }
     }
 
-    private fun getPhoneNumber(): String? {
+    private fun readPhoneNumberOrNull(): String? {
         if (!hasPhonePermission()) return null
         val telephonyManager = requireContext().getSystemService(TelephonyManager::class.java)
         return runCatching { telephonyManager?.line1Number }.getOrNull()
@@ -131,6 +167,7 @@ class LoginFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        Log.i(TAG, "LoginFragment onDestroyView")
         super.onDestroyView()
         ProgressDialog.hide()
         _binding = null
