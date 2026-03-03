@@ -12,100 +12,46 @@ import com.hitachi.confirmnfc.R
 import com.hitachi.confirmnfc.viewmodel.NfcConfirmViewModel
 
 /**
- * NFC読み取り履歴を縦並びのTextViewとして描画するBindingAdapter。
+ * NFC読み取り履歴を縦並びのTextViewとして描画するBindingAdapter群。
  *
- * ✅ 重要:
- * - Kotlinのトップレベル関数だと DataBinding に拾われない環境があるため、
- *   object + @JvmStatic で「public static」として確実に認識させる。
- * - scanItems / selectedIndex は List/Int と LiveData<List>/LiveData<Int> の両方に対応。
- * - 値は View.tag に保持し、片方だけ更新されても再描画できる。
+ * プロジェクト/AGPのDataBinding解決差異で
+ * - LiveData<List<ScanItem>> / LiveData<Int>
+ * - List<ScanItem> / Int
+ * のどちらが渡ってきても描画できるように、受け口を `Any?` にして正規化する。
  */
 object NfcConfirmBindingAdapters {
 
-    private const val TAG_KEY_SCAN_ITEMS = 0x20000001
-    private const val TAG_KEY_SELECTED_INDEX = 0x20000002
-
-    // ----------------------------
-    // scanItems : List
-    // ----------------------------
     @JvmStatic
-    @BindingAdapter("scanItems")
+    @BindingAdapter(value = ["scanItems", "selectedIndex"], requireAll = false)
     fun bindScanItems(
         container: LinearLayout,
-        items: List<NfcConfirmViewModel.ScanItem>?
+        itemsSource: Any?,
+        selectedIndexSource: Any?
     ) {
-        container.setTag(TAG_KEY_SCAN_ITEMS, items)
-        val selectedIndex = container.getTag(TAG_KEY_SELECTED_INDEX) as? Int
-        renderScanItems(container, items, selectedIndex)
-    }
+        val items = when (itemsSource) {
+            is LiveData<*> -> itemsSource.value as? List<NfcConfirmViewModel.ScanItem>
+            is List<*> -> itemsSource.filterIsInstance<NfcConfirmViewModel.ScanItem>()
+            else -> null
+        }.orEmpty()
 
-    // ----------------------------
-    // scanItems : LiveData<List>
-    // ----------------------------
-    @JvmStatic
-    @BindingAdapter("scanItems")
-    fun bindScanItemsLiveData(
-        container: LinearLayout,
-        itemsLiveData: LiveData<List<NfcConfirmViewModel.ScanItem>>?
-    ) {
-        val items = itemsLiveData?.value
-        container.setTag(TAG_KEY_SCAN_ITEMS, items)
-        val selectedIndex = container.getTag(TAG_KEY_SELECTED_INDEX) as? Int
-        renderScanItems(container, items, selectedIndex)
-    }
+        val selectedIndex = when (selectedIndexSource) {
+            is LiveData<*> -> selectedIndexSource.value as? Int
+            is Int -> selectedIndexSource
+            else -> null
+        } ?: -1
 
-    // ----------------------------
-    // selectedIndex : Int
-    // ----------------------------
-    @JvmStatic
-    @BindingAdapter("selectedIndex")
-    fun bindSelectedIndex(
-        container: LinearLayout,
-        selectedIndex: Int?
-    ) {
-        container.setTag(TAG_KEY_SELECTED_INDEX, selectedIndex)
-        @Suppress("UNCHECKED_CAST")
-        val items = container.getTag(TAG_KEY_SCAN_ITEMS) as? List<NfcConfirmViewModel.ScanItem>
-        renderScanItems(container, items, selectedIndex)
-    }
-
-    // ----------------------------
-    // selectedIndex : LiveData<Int>
-    // ----------------------------
-    @JvmStatic
-    @BindingAdapter("selectedIndex")
-    fun bindSelectedIndexLiveData(
-        container: LinearLayout,
-        selectedIndexLiveData: LiveData<Int>?
-    ) {
-        val selectedIndex = selectedIndexLiveData?.value
-        container.setTag(TAG_KEY_SELECTED_INDEX, selectedIndex)
-        @Suppress("UNCHECKED_CAST")
-        val items = container.getTag(TAG_KEY_SCAN_ITEMS) as? List<NfcConfirmViewModel.ScanItem>
-        renderScanItems(container, items, selectedIndex)
-    }
-
-    private fun renderScanItems(
-        container: LinearLayout,
-        items: List<NfcConfirmViewModel.ScanItem>?,
-        selectedIndex: Int?
-    ) {
         container.removeAllViews()
-        val currentItems = items.orEmpty()
-        val currentSelected = selectedIndex ?: -1
-
-        currentItems.forEachIndexed { index, item ->
+        items.forEachIndexed { index, item ->
             val row = TextView(container.context).apply {
                 text = context.getString(R.string.nfc_row_format, index + 1, item.serial)
                 textSize = 18f
                 setPadding(12, 12, 12, 12)
-                typeface = if (index == currentSelected) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
+                typeface = if (index == selectedIndex) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
             }
             container.addView(row)
         }
     }
 
-    /** BooleanをViewの表示/非表示に変換するBindingAdapter。 */
     @JvmStatic
     @BindingAdapter("visibleOrGone")
     fun bindVisibleOrGone(view: View, visible: Boolean?) {
