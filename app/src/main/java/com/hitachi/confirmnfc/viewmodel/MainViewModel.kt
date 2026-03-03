@@ -1,3 +1,5 @@
 package com.hitachi.confirmnfc.viewmodel
 
-class MainViewModel : BaseViewModel()
+import android.app.Activity
+
+class MainViewModel(context: Activity) : BaseViewModel(context)

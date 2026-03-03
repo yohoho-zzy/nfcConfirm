@@ -14,6 +14,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.fragment.app.viewModels
 import com.hitachi.confirmnfc.R
 import com.hitachi.confirmnfc.databinding.FragmentLoginBinding
@@ -24,6 +25,7 @@ import com.hitachi.confirmnfc.viewmodel.FragmentOpCmd
 import com.hitachi.confirmnfc.viewmodel.LoginViewModel
 import com.hitachi.confirmnfc.viewmodel.MainViewModel
 import com.hitachi.confirmnfc.viewmodel.NfcConfirmViewModel
+import com.hitachi.confirmnfc.viewmodel.ViewModelFactory
 
 class LoginFragment : Fragment() {
 
@@ -32,7 +34,9 @@ class LoginFragment : Fragment() {
 
     private val viewModel: LoginViewModel by viewModels()
     private val nfcViewModel: NfcConfirmViewModel by activityViewModels()
-    private val mainViewModel: MainViewModel by activityViewModels()
+    private val mainViewModel by lazy {
+        ViewModelProvider(requireActivity(), ViewModelFactory(requireActivity()))[MainViewModel::class.java]
+    }
 
     private val permissions = arrayOf(
         Manifest.permission.READ_PHONE_NUMBERS,

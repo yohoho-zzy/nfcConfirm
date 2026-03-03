@@ -1,9 +1,11 @@
 package com.hitachi.confirmnfc.viewmodel
 
+import android.app.Activity
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModel
+import com.hitachi.confirmnfc.MainActivity
 import java.lang.ref.WeakReference
 
 enum class FragmentOpCmd {
@@ -24,11 +26,28 @@ enum class ActionEnum {
     }
 }
 
-open class BaseViewModel : ViewModel() {
+open class BaseViewModel(context: Activity) : ViewModel() {
+
+    protected val context: MainActivity = context as MainActivity
+
+    var navigationVisible: Boolean = false
 
     fun configureNavigator(fragmentManager: FragmentManager, containerId: Int) {
         managerRef = WeakReference(fragmentManager)
         hostContainerId = containerId
+    }
+
+    fun setBack(args: Map<String, String>? = null) {
+        onNavigationClick { back(args) }
+    }
+
+    fun back(args: Map<String, String>? = null) {
+        changeFragment(previousAction, args = args)
+    }
+
+    fun onNavigationClick(onClick: () -> Unit) {
+        navigationVisible = true
+        context.back = onClick
     }
 
     fun changeFragment(
