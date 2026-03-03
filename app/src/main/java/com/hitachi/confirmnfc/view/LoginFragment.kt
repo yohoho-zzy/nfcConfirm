@@ -1,6 +1,7 @@
 package com.hitachi.confirmnfc.view
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -23,8 +24,10 @@ import com.hitachi.confirmnfc.util.ProgressDialog
 import com.hitachi.confirmnfc.viewmodel.LoginViewModel
 import com.hitachi.confirmnfc.viewmodel.ViewModelFactory
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 
 /**
  * ログイン画面のUI制御を担うFragment。
@@ -140,10 +143,31 @@ class LoginFragment : Fragment() {
     /**
      * TelephonyManagerから電話番号を取得し、失敗時はnullを返す。
      */
-    private fun readPhoneNumberOrNull(): String? {
+    @SuppressLint("HardwareIds")
+    private suspend fun readPhoneNumberOrNull(): String? {
         if (!hasPhonePermission()) return null
-        val telephonyManager = requireContext().getSystemService(TelephonyManager::class.java)
-        return runCatching { telephonyManager?.line1Number }.getOrNull()
+
+        val context = requireContext()
+        val telephonyManager =
+            context.getSystemService(TelephonyManager::class.java) ?: return null
+
+        return try {
+            withTimeout(1500L) {   // 防止底层 Binder 卡死
+                val number = telephonyManager.line1Number
+                number
+                    ?.takeIf { it.isNotBlank() }
+                    ?.trim()
+            }
+        } catch (e: SecurityException) {
+            Log.w(TAG, "No permission to read phone number", e)
+            null
+        } catch (e: TimeoutCancellationException) {
+            Log.w(TAG, "Reading phone number timeout")
+            null
+        } catch (e: Exception) {
+            Log.w(TAG, "Unexpected error reading phone number", e)
+            null
+        }
     }
 
     /**
@@ -161,7 +185,6 @@ class LoginFragment : Fragment() {
      * View破棄時にダイアログとBindingを解放する。
      */
     override fun onDestroyView() {
-        Log.i(TAG, "LoginFragment onDestroyView")
         super.onDestroyView()
         ProgressDialog.hide()
         _binding = null
