@@ -6,25 +6,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModel
 import com.hitachi.confirmnfc.MainActivity
+import com.hitachi.confirmnfc.enums.ActionEnum
+import com.hitachi.confirmnfc.enums.FragmentOpCmd
 import java.lang.ref.WeakReference
-
-enum class FragmentOpCmd {
-    OP_REPLACE,
-    OP_SWITCH,
-    OP_MOVE
-}
-
-enum class ActionEnum {
-    LOGIN,
-    NFC_CONFIRM;
-
-    fun fragmentInstance(): Fragment? {
-        return when (this) {
-            LOGIN -> com.hitachi.confirmnfc.fragment.LoginFragment()
-            NFC_CONFIRM -> com.hitachi.confirmnfc.fragment.NfcConfirmFragment()
-        }
-    }
-}
 
 open class BaseViewModel(context: Activity) : ViewModel() {
 
@@ -71,7 +55,7 @@ open class BaseViewModel(context: Activity) : ViewModel() {
 
         when (cmd) {
             FragmentOpCmd.OP_REPLACE -> {
-                val toFragment: Fragment = to.fragmentInstance() ?: return
+                val toFragment: Fragment = to.fragmentInstance()
                 toFragment.arguments = bundle
                 fragmentTransaction.replace(hostContainerId, toFragment, fragmentTag)
             }
@@ -82,7 +66,7 @@ open class BaseViewModel(context: Activity) : ViewModel() {
                     toFragment.arguments = bundle
                     fragmentTransaction.show(toFragment)
                 } else {
-                    toFragment = to.fragmentInstance() ?: return
+                    toFragment = to.fragmentInstance()
                     toFragment.arguments = bundle
                     fragmentTransaction.add(hostContainerId, toFragment, fragmentTag)
                 }

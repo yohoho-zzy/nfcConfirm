@@ -35,28 +35,7 @@ class NfcConfirmViewModel(application: Application) : AndroidViewModel(applicati
 
     /** 初期処理。 */
     fun init() {
-        // 画面表示時に必要な初期状態を整える。
-        if (_nfcMessage.value.isNullOrBlank()) {
-            _nfcMessage.value = app.getString(R.string.nfc_instruction)
-        }
-        if (_nameText.value.isNullOrBlank()) {
-            _nameText.value = app.getString(R.string.serial_default)
-        }
-        if (_customerCodeText.value.isNullOrBlank()) {
-            _customerCodeText.value = app.getString(R.string.serial_default)
-        }
-        if (_addressText.value.isNullOrBlank()) {
-            _addressText.value = app.getString(R.string.serial_default)
-        }
-        if (hasMultipleItems.value == null) {
-            hasMultipleItems.value = false
-        }
-        if (hasAnyItems.value == null) {
-            hasAnyItems.value = false
-        }
-        if (pageIndicator.value == null) {
-            pageIndicator.value = ""
-        }
+        resetUi()
     }
 
     fun onNotFoundDialogShown() {
