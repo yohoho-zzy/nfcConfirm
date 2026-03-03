@@ -31,26 +31,21 @@ class LoginViewModel(context: Activity) : BaseViewModel(context) {
     /** 入力された組織コード。 */
     val organizationCode = MutableLiveData("")
 
-    /** 取得した電話番号。 */
-    val phoneNumber = MutableLiveData("")
-
     /** ログイン画面に表示するメッセージ。 */
     val loginMessage = MutableLiveData("")
 
-    /** ログインボタンの文言。 */
-    val loginButtonText = MutableLiveData(app.getString(R.string.login_button))
-
     /** ログイン状態。 */
-    val isLoggedIn = MutableLiveData(false)
+    private val isLoggedIn = MutableLiveData(false)
 
     /** 電話権限が拒否されているかどうか。 */
-    var phonePermissionDenied = false
+    var phonePermissionDenied = MutableLiveData(false)
 
     /**
      * 初期状態へリセットする。
      */
     fun init() {
         organizationCode.value = ""
+        phonePermissionDenied.value = false
     }
 
     /**
@@ -59,18 +54,12 @@ class LoginViewModel(context: Activity) : BaseViewModel(context) {
     fun applyPhonePermissionResult(granted: Boolean) {
         if (granted) {
             // 許可済みなら通常ログイン状態へ戻す。
-            phonePermissionDenied = false
+            phonePermissionDenied.value = false
             loginMessage.value = ""
         } else {
             // 拒否時は電話番号を破棄し、設定誘導メッセージを表示する。
-            phonePermissionDenied = true
-            phoneNumber.value = ""
+            phonePermissionDenied.value = true
             loginMessage.value = app.getString(R.string.phone_permission_required)
-        }
-        loginButtonText.value = if (phonePermissionDenied) {
-            app.getString(R.string.permission_settings_button)
-        } else {
-            app.getString(R.string.login_button)
         }
     }
 

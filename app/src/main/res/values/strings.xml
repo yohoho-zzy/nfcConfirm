@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="titleOrganizationCode">組織コード</string>
+    <string name="strBtnLogin">ログイン</string>
+    <string name="strBtnSetting">電話権限設定</string>
     <string name="app_name">NFC確認</string>
     <string name="login_title">ログイン</string>
     <string name="user_id_hint">ユーザーID</string>
     <string name="phone_number_hint">電話番号</string>
-    <string name="permission_settings_button">設定権限</string>
+    <string name="permission_settings_button"></string>
     <string name="phone_permission_required">電話番号の権限が必要です\n設定から許可してください</string>
     <string name="phone_number_unknown">取得できません</string>
     <string name="login_button">ログイン</string>

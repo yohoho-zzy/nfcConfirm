@@ -30,33 +30,31 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 
 /**
- * ログイン画面のUI制御を担うFragment。
+ * ログイン画面のUI制御を担うFragment
  */
 class LoginFragment : Fragment() {
 
     companion object {
-        /** ログ出力用のタグ。 */
+        /** ログ出力用のタグ */
         private const val TAG = "LoginFragment"
     }
 
-    /** ViewBindingの退避領域。 */
+    /** Binding */
     private var _binding: FragmentLoginBinding? = null
-
-    /** null非許容で利用するBinding参照。 */
     private val binding get() = _binding!!
 
-    /** ログイン処理を担当するViewModel。 */
+    /** ViewModel */
     private val viewModel by lazy {
         ViewModelProvider(this, ViewModelFactory(requireActivity()))[LoginViewModel::class.java]
     }
 
-    /** 画面で要求する電話関連パーミッション。 */
+    /** 画面で要求する電話関連パーミッション */
     private val permissions = arrayOf(
         Manifest.permission.READ_PHONE_NUMBERS,
         Manifest.permission.READ_PHONE_STATE
     )
 
-    /** 権限要求の結果を受け取るランチャー。 */
+    /** 権限要求の結果を受け取るランチャー */
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { result ->
@@ -66,7 +64,7 @@ class LoginFragment : Fragment() {
     }
 
     /**
-     * 画面生成時にDataBindingと初期イベントを設定する。
+     * onCreateView:画面生成時にDataBindingと初期イベントを設定する。
      */
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -74,35 +72,32 @@ class LoginFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_login, container, false)
-        // LiveDataの更新をレイアウトへ即時反映する。
         binding.lifecycleOwner = viewLifecycleOwner
-        // XML側の`loginViewModel`変数へViewModelを関連付ける。
         binding.loginViewModel = viewModel
+
+        viewModel.init()
 
         if (!hasPhonePermission()) {
             // 初回表示時に未許可なら、その場で権限ダイアログを起動する。
             permissionLauncher.launch(permissions)
         }
 
-        // 入力欄やメッセージの初期表示を整える。
-        viewModel.init()
-
+        // ログインボタン
         binding.loginButton.setOnClickListener {
-            if (viewModel.phonePermissionDenied) {
-                openAppPermissionSettings()
-                return@setOnClickListener
-            }
             if (!viewModel.checkOrganizationCode()) {
                 return@setOnClickListener
             }
-            // 入力と権限が揃った場合のみ電話番号取得〜ログインへ進む。
             fetchPhoneNumberAndLoginAsync()
+        }
+        // ログインボタン
+        binding.settingButton.setOnClickListener {
+            openAppPermissionSettings()
         }
         return binding.root
     }
 
     /**
-     * 設定画面から復帰したタイミングで権限状態を再評価する。
+     * onResume:設定画面から復帰したタイミングで権限状態を再評価する
      */
     override fun onResume() {
         super.onResume()

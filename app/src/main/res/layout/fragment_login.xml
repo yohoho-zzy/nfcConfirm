@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+        <import type="android.view.View" />
         <variable
             name="loginViewModel"
             type="com.hitachi.confirmnfc.viewmodel.LoginViewModel" />
@@ -58,11 +59,26 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/button"
-                android:text="@{loginViewModel.loginButtonText}"
+                android:text="@string/strBtnLogin"
                 android:layout_marginTop="30dp"
+                android:paddingVertical="12dp"
                 android:textColor="@color/button_text"
-                android:textSize="28sp"
-                android:textStyle="bold" />
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:visibility="@{!loginViewModel.phonePermissionDenied ? View.VISIBLE : View.GONE}"/>
+
+            <Button
+                android:id="@+id/settingButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/button"
+                android:text="@string/strBtnSetting"
+                android:layout_marginTop="30dp"
+                android:paddingVertical="12dp"
+                android:textColor="@color/button_text"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:visibility="@{loginViewModel.phonePermissionDenied ? View.VISIBLE : View.GONE}"/>
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
