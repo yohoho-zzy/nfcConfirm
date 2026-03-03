@@ -9,6 +9,7 @@ import android.provider.Settings
 import android.telephony.TelephonyManager
 import android.text.InputFilter
 import android.text.Spanned
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,6 +33,8 @@ import java.util.regex.Pattern
 class LoginFragment : Fragment() {
 
     companion object {
+        private const val TAG = "LoginFragment"
+
         @JvmStatic
         fun newInstance(): LoginFragment = LoginFragment()
     }
@@ -64,20 +67,25 @@ class LoginFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_login, container, false)
-        binding.lifecycleOwner = this
         binding.loginViewModel = viewModel
         binding.userIdInput.apply {
             filters = arrayOf(EditTextFilter("^[!-~]{0,128}$"))
         }
 
-        viewModel.init(hasPhonePermission(), getPhoneNumber())
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.lifecycleOwner = viewLifecycleOwner
         ProgressDialog.init(requireActivity() as MainActivity)
         observeState()
+
+        if (savedInstanceState == null) {
+            val hasPermission = hasPhonePermission()
+            Log.i(TAG, "LoginFragment init. hasPermission=$hasPermission")
+            viewModel.init(hasPermission, getPhoneNumber())
+        }
     }
 
     private fun observeState() {
@@ -102,7 +110,10 @@ class LoginFragment : Fragment() {
 
         viewModel.command.observe(viewLifecycleOwner) { command ->
             when (command) {
-                LoginCommand.RequestPhonePermission -> permissionLauncher.launch(permissions)
+                LoginCommand.RequestPhonePermission -> {
+                    Log.i(TAG, "Requesting phone permissions")
+                    permissionLauncher.launch(permissions)
+                }
                 LoginCommand.OpenPermissionSettings -> openAppPermissionSettings()
                 null -> Unit
             }
@@ -131,6 +142,7 @@ class LoginFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        Log.i(TAG, "LoginFragment onDestroyView")
         super.onDestroyView()
         ProgressDialog.hide()
         _binding = null
