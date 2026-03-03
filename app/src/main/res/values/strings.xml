@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="titleOrganizationCode">組織コード</string>
     <string name="app_name">NFC確認</string>
     <string name="login_title">ログイン</string>
     <string name="user_id_hint">ユーザーID</string>

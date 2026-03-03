@@ -2,27 +2,13 @@ package com.hitachi.confirmnfc.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.hitachi.confirmnfc.R
 import com.hitachi.confirmnfc.repository.LoginRepository
 import com.hitachi.confirmnfc.model.CsvRecord
+import com.hitachi.confirmnfc.util.ProgressDialog
 import kotlinx.coroutines.launch
-
-sealed class LoginState {
-    data object Idle : LoginState()
-    data object Loading : LoginState()
-    data object Success : LoginState()
-    data class Error(val message: String) : LoginState()
-}
-
-/** 画面側が実行する必要がある副作用コマンド。 */
-sealed class LoginCommand {
-    data object RequestPhonePermission : LoginCommand()
-    data object OpenPermissionSettings : LoginCommand()
-    data object FetchPhoneNumber : LoginCommand()
-}
 
 object LoginSessionStore {
     var csvRecords: List<CsvRecord> = emptyList()
@@ -36,38 +22,23 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = LoginRepository(application)
     private val app = getApplication<Application>()
 
-    private val _loginState = MutableLiveData<LoginState>(LoginState.Idle)
-    val loginState: LiveData<LoginState> = _loginState
-
-    private val _progressMessage = MutableLiveData<String?>(null)
-    val progressMessage: LiveData<String?> = _progressMessage
-
-    private val _command = MutableLiveData<LoginCommand?>(null)
-    val command: LiveData<LoginCommand?> = _command
-
-    val userId = MutableLiveData("")
+    val organizationCode = MutableLiveData("")
     val phoneNumber = MutableLiveData("")
     val loginMessage = MutableLiveData("")
     val loginButtonText = MutableLiveData(app.getString(R.string.login_button))
     val isLoggedIn = MutableLiveData(false)
 
-    private var phonePermissionDenied = false
+    var phonePermissionDenied = false
 
     /** 初期処理。 */
-    fun init(hasPermission: Boolean, detectedPhoneNumber: String?) {
-        if (hasPermission) {
-            applyPhonePermissionResult(true, detectedPhoneNumber)
-        } else {
-            _command.value = LoginCommand.RequestPhonePermission
-        }
+    fun init() {
+        organizationCode.value = ""
     }
 
     /** 権限要求の結果をUI状態へ反映する。 */
-    fun applyPhonePermissionResult(granted: Boolean, detectedPhoneNumber: String?) {
+    fun applyPhonePermissionResult(granted: Boolean) {
         if (granted) {
             phonePermissionDenied = false
-            phoneNumber.value = detectedPhoneNumber?.takeIf { it.isNotBlank() }
-                ?: app.getString(R.string.phone_number_unknown)
             loginMessage.value = ""
         } else {
             phonePermissionDenied = true
@@ -81,77 +52,42 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    /** ログインボタン押下時の判定を行う。 */
-    fun onLoginButtonClicked() {
-        if (phonePermissionDenied) {
-            _command.value = LoginCommand.OpenPermissionSettings
-            return
-        }
-
-        val id = userId.value?.trim().orEmpty()
-        if (id.isBlank()) {
-            loginMessage.value = app.getString(R.string.input_user_id_required)
-            return
-        }
-
-        _command.value = LoginCommand.FetchPhoneNumber
-    }
-
     /** 端末から電話番号取得後にログインを継続する。 */
     fun onPhoneNumberFetched(detectedPhoneNumber: String?) {
-        val id = userId.value?.trim().orEmpty()
-        if (id.isBlank()) {
-            loginMessage.value = app.getString(R.string.input_user_id_required)
+        if (!checkOrganizationCode()) {
             return
         }
-
-        val phone = detectedPhoneNumber?.takeIf { it.isNotBlank() }
-            ?: app.getString(R.string.phone_number_unknown)
-        phoneNumber.value = phone
-
-        login(id, phone)
+        if (detectedPhoneNumber?.isNotBlank() == true) {
+            login(organizationCode.value!!, detectedPhoneNumber)
+        } else {
+            loginMessage.value = app.getString(R.string.phone_number_unknown)
+            ProgressDialog.hide()
+        }
     }
 
-    fun login(userId: String, phoneNumber: String) {
+    private fun login(userId: String, phoneNumber: String) {
         viewModelScope.launch {
-            _loginState.value = LoginState.Loading
             loginMessage.value = ""
-            _progressMessage.value = app.getString(R.string.login_in_progress)
 
-            val result = repository.fetchCsv(userId, phoneNumber)
+            val result = repository.fetchCsv(userId, "09012345678")
             result.onSuccess {
                 LoginSessionStore.csvRecords = it
-                _loginState.value = LoginState.Success
-                _progressMessage.value = null
                 loginMessage.value = app.getString(R.string.login_success)
                 isLoggedIn.value = true
+                ProgressDialog.hide()
             }.onFailure {
-                _loginState.value = LoginState.Error(
-                    it.message ?: app.getString(R.string.login_failed)
-                )
-                _progressMessage.value = null
                 loginMessage.value = it.message ?: app.getString(R.string.login_failed)
+                ProgressDialog.hide()
             }
         }
     }
 
-
-    /** 互換用: 旧Fragment実装から呼ばれる状態リセット。 */
-    fun resetState() {
-        _loginState.value = LoginState.Idle
-    }
-
-    /** 画面側で副作用を実行した後に呼び、イベントを消費する。 */
-    fun consumeCommand() {
-        _command.value = null
-    }
-
-    /** 戻る操作でログイン画面へ戻す。 */
-    fun clearSession() {
-        LoginSessionStore.csvRecords = emptyList()
-        _loginState.value = LoginState.Idle
-        _progressMessage.value = null
-        loginMessage.value = ""
-        isLoggedIn.value = false
+    fun checkOrganizationCode() : Boolean {
+        val id = organizationCode.value?.trim().orEmpty()
+        if (id.isBlank()) {
+            loginMessage.value = app.getString(R.string.input_user_id_required)
+            return false
+        }
+        return true
     }
 }

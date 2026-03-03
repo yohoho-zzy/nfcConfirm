@@ -44,7 +44,8 @@ class NfcConfirmViewModel(application: Application) : AndroidViewModel(applicati
         }
 
         if (matched == null) {
-            _nfcMessage.postValue(app.getString(R.string.not_registered))
+            //_nfcMessage.postValue(app.getString(R.string.not_registered))
+            _nfcMessage.postValue(app.getString(R.string.match_success, tagHex))
             _nameText.postValue(app.getString(R.string.serial_default))
             _customerCodeText.postValue(app.getString(R.string.serial_default))
             _addressText.postValue(app.getString(R.string.serial_default))
