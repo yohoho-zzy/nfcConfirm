@@ -16,18 +16,6 @@ fun bindScanItems(
     items: List<NfcConfirmViewModel.ScanItem>?,
     selectedIndex: Int?
 ) {
-    renderScanItems(container, items?.value, selectedIndex?.value)
-}
-
-/**
- * LiveData を `.value` 展開して渡すレイアウト式向けのオーバーロード。
- */
-@BindingAdapter(value = ["scanItems", "selectedIndex"])
-fun bindScanItems(
-    container: LinearLayout,
-    items: List<NfcConfirmViewModel.ScanItem>?,
-    selectedIndex: Int?
-) {
     renderScanItems(container, items, selectedIndex)
 }
 
@@ -53,6 +41,6 @@ private fun renderScanItems(
 
 /** BooleanをViewの表示/非表示に変換するBindingAdapter。 */
 @BindingAdapter("visibleOrGone")
-fun bindVisibleOrGone(view: View, visible: Boolean) {
-    view.visibility = if (visible) View.VISIBLE else View.GONE
+fun bindVisibleOrGone(view: View, visible: Boolean?) {
+    view.visibility = if (visible == true) View.VISIBLE else View.GONE
 }
