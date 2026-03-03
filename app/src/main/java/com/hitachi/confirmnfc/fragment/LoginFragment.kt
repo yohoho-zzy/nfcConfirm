@@ -5,25 +5,25 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.text.InputFilter
-import android.text.Spanned
 import android.provider.Settings
 import android.telephony.TelephonyManager
+import android.text.InputFilter
+import android.text.Spanned
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
-import androidx.fragment.app.viewModels
 import com.hitachi.confirmnfc.R
 import com.hitachi.confirmnfc.databinding.FragmentLoginBinding
-import com.hitachi.confirmnfc.viewmodel.LoginCommand
-import com.hitachi.confirmnfc.viewmodel.LoginState
 import com.hitachi.confirmnfc.viewmodel.ActionEnum
 import com.hitachi.confirmnfc.viewmodel.FragmentOpCmd
+import com.hitachi.confirmnfc.viewmodel.LoginCommand
+import com.hitachi.confirmnfc.viewmodel.LoginState
 import com.hitachi.confirmnfc.viewmodel.LoginViewModel
 import com.hitachi.confirmnfc.viewmodel.MainViewModel
 import com.hitachi.confirmnfc.viewmodel.NfcConfirmViewModel
@@ -32,10 +32,17 @@ import java.util.regex.Pattern
 
 class LoginFragment : Fragment() {
 
+    companion object {
+        @JvmStatic
+        fun newInstance(): LoginFragment = LoginFragment()
+    }
+
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: LoginViewModel by viewModels()
+    private val viewModel by lazy {
+        ViewModelProvider(this)[LoginViewModel::class.java]
+    }
     private val nfcViewModel: NfcConfirmViewModel by activityViewModels()
     private val mainViewModel by lazy {
         ViewModelProvider(requireActivity(), ViewModelFactory(requireActivity()))[MainViewModel::class.java]
@@ -58,18 +65,20 @@ class LoginFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentLoginBinding.inflate(inflater, container, false)
+        _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_login, container, false)
+        binding.lifecycleOwner = this
         binding.loginViewModel = viewModel
-        binding.userIdInput.filters = arrayOf(EditTextFilter("^[!-~]{0,128}$"))
+        binding.userIdInput.apply {
+            filters = arrayOf(EditTextFilter("^[!-~]{0,128}$"))
+        }
+
+        viewModel.init(hasPhonePermission(), getPhoneNumber())
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.lifecycleOwner = viewLifecycleOwner
-
         observeState()
-        viewModel.onScreenStarted(hasPhonePermission(), getPhoneNumber())
     }
 
     private fun observeState() {
@@ -130,9 +139,6 @@ class LoginFragment : Fragment() {
         _binding = null
     }
 
-    /**
-     * 文字種入力制御フィルター。
-     */
     inner class EditTextFilter(private val regex: String) : InputFilter {
         override fun filter(
             source: CharSequence?,
@@ -145,11 +151,10 @@ class LoginFragment : Fragment() {
             val builder = StringBuilder(dest ?: "")
             builder.replace(dstart, dend, source?.subSequence(start, end).toString())
             val newText = builder.toString()
-            return if (Pattern.matches(regex, newText)) {
-                null
-            } else {
-                ""
+            if (!Pattern.matches(regex, newText)) {
+                return ""
             }
+            return null
         }
     }
 }
