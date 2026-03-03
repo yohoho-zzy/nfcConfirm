@@ -26,15 +26,14 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         Log.i(TAG, "onCreate savedInstanceState=${savedInstanceState != null}")
-        mainViewModel.resetNavigationState()
         mainViewModel.configureNavigator(supportFragmentManager, R.id.frameContainer)
-        ensureInitialLoginPage(savedInstanceState)
+        ensureInitialLoginPage()
     }
 
-    private fun ensureInitialLoginPage(savedInstanceState: Bundle?) {
+    private fun ensureInitialLoginPage() {
         val currentFragment = supportFragmentManager.findFragmentById(R.id.frameContainer)
         Log.i(TAG, "ensureInitialLoginPage current=${currentFragment?.javaClass?.simpleName}")
-        if (savedInstanceState == null || currentFragment == null) {
+        if (currentFragment == null) {
             supportFragmentManager.beginTransaction()
                 .setReorderingAllowed(true)
                 .replace(R.id.frameContainer, LoginFragment(), ActionEnum.LOGIN.toString())
