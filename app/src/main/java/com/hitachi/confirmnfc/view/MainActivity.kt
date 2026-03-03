@@ -27,17 +27,22 @@ class MainActivity : AppCompatActivity() {
 
         Log.i(TAG, "onCreate savedInstanceState=${savedInstanceState != null}")
         mainViewModel.configureNavigator(supportFragmentManager, R.id.frameContainer)
-        ensureInitialLoginPage()
+        ensureInitialLoginPage(savedInstanceState)
     }
 
-    private fun ensureInitialLoginPage() {
+    private fun ensureInitialLoginPage(savedInstanceState: Bundle?) {
+        if (savedInstanceState != null) {
+            Log.i(TAG, "ensureInitialLoginPage skipped (restored state)")
+            return
+        }
+
         val currentFragment = supportFragmentManager.findFragmentById(R.id.frameContainer)
         Log.i(TAG, "ensureInitialLoginPage current=${currentFragment?.javaClass?.simpleName}")
         if (currentFragment == null) {
             supportFragmentManager.beginTransaction()
                 .setReorderingAllowed(true)
                 .replace(R.id.frameContainer, LoginFragment(), ActionEnum.LOGIN.toString())
-                .commitNow()
+                .commit()
         }
     }
 
