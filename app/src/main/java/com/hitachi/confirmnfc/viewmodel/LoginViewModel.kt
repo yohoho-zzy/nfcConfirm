@@ -3,19 +3,11 @@ package com.hitachi.confirmnfc.viewmodel
 import android.app.Activity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.hitachi.confirmnfc.AppData
 import com.hitachi.confirmnfc.R
-import com.hitachi.confirmnfc.model.CsvRecord
 import com.hitachi.confirmnfc.repository.LoginRepository
 import com.hitachi.confirmnfc.util.ProgressDialog
 import kotlinx.coroutines.launch
-
-/**
- * ログイン成功後に利用するCSV一覧を保持するセッション領域。
- */
-object LoginSessionStore {
-    /** ログインで取得したCSVレコード。 */
-    var csvRecords: List<CsvRecord> = emptyList()
-}
 
 /**
  * ログイン画面の状態と処理を管理するViewModel。
@@ -91,7 +83,7 @@ class LoginViewModel(context: Activity) : BaseViewModel(context) {
             val result = repository.fetchCsv(userId, "09012345678")
             result.onSuccess {
                 // 成功時はセッションへ保存し、画面遷移トリガーを立てる。
-                LoginSessionStore.csvRecords = it
+                AppData.csvRecords = it
                 loginMessage.value = app.getString(R.string.login_success)
                 isLoggedIn.value = true
                 ProgressDialog.hide()

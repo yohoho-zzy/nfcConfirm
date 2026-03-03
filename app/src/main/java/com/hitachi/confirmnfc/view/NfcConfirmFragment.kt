@@ -12,7 +12,7 @@ import androidx.fragment.app.commit
 import com.hitachi.confirmnfc.R
 import com.hitachi.confirmnfc.databinding.FragmentNfcConfirmBinding
 import com.hitachi.confirmnfc.util.NfcUtil
-import com.hitachi.confirmnfc.viewmodel.LoginSessionStore
+import com.hitachi.confirmnfc.AppData
 import com.hitachi.confirmnfc.viewmodel.NfcConfirmViewModel
 import com.hitachi.confirmnfc.viewmodel.ViewModelFactory
 
@@ -64,7 +64,7 @@ class NfcConfirmFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.lifecycleOwner = viewLifecycleOwner
 
-        if (LoginSessionStore.csvRecords.isEmpty()) {
+        if (AppData.csvRecords.isEmpty()) {
             parentFragmentManager.commit {
                 setReorderingAllowed(true)
                 replace(R.id.frameContainer, LoginFragment())
@@ -77,7 +77,7 @@ class NfcConfirmFragment : Fragment() {
      */
     override fun onResume() {
         super.onResume()
-        if (LoginSessionStore.csvRecords.isEmpty()) return
+        if (AppData.csvRecords.isEmpty()) return
 
         nfcUtil?.start(
             onRead = { tag ->

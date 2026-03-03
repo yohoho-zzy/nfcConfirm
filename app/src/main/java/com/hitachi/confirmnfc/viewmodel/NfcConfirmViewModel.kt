@@ -3,6 +3,7 @@ package com.hitachi.confirmnfc.viewmodel
 import android.app.Activity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.hitachi.confirmnfc.AppData
 import com.hitachi.confirmnfc.R
 import com.hitachi.confirmnfc.model.CsvRecord
 import java.util.Locale
@@ -60,7 +61,7 @@ class NfcConfirmViewModel(context: Activity) : BaseViewModel(context) {
      */
     fun onTagRead(tagHex: String) {
         val normalizedTag = normalizeKey(tagHex)
-        val matched = LoginSessionStore.csvRecords.firstOrNull { record ->
+        val matched = AppData.csvRecords.firstOrNull { record ->
             record.columns.drop(3).any { key -> normalizeKey(key) == normalizedTag }
         }
 
