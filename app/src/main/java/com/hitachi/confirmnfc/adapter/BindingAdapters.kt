@@ -7,7 +7,6 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
-import androidx.lifecycle.LiveData
 import com.hitachi.confirmnfc.R
 import com.hitachi.confirmnfc.viewmodel.NfcConfirmViewModel
 
