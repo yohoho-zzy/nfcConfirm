@@ -24,13 +24,13 @@ class NfcConfirmFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentNfcConfirmBinding.inflate(inflater, container, false)
-        binding.lifecycleOwner = viewLifecycleOwner
         binding.nfcViewModel = viewModel
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.lifecycleOwner = viewLifecycleOwner
 
         viewModel.notFoundDialogMessage.observe(viewLifecycleOwner) { message ->
             if (message.isNullOrBlank()) return@observe
