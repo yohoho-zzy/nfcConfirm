@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.hitachi.confirmnfc.R
 import com.hitachi.confirmnfc.enums.ActionEnum
-import com.hitachi.confirmnfc.enums.FragmentOpCmd
 import com.hitachi.confirmnfc.viewmodel.MainViewModel
 import com.hitachi.confirmnfc.viewmodel.ViewModelFactory
 
@@ -23,17 +22,22 @@ class MainActivity : AppCompatActivity() {
 
         mainViewModel.configureNavigator(supportFragmentManager, R.id.frameContainer)
 
-        val currentFragment = supportFragmentManager.findFragmentById(R.id.frameContainer)
-        if (savedInstanceState == null || currentFragment == null) {
-            mainViewModel.changeFragment(ActionEnum.LOGIN, FragmentOpCmd.OP_REPLACE)
-        }
+        ensureLoginFragmentDisplayed(savedInstanceState == null)
     }
 
     override fun onPostResume() {
         super.onPostResume()
-        // 一部端末で復元タイミングによりコンテナが空になるケースへの保険。
-        if (supportFragmentManager.findFragmentById(R.id.frameContainer) == null) {
-            mainViewModel.changeFragment(ActionEnum.LOGIN, FragmentOpCmd.OP_REPLACE)
+        ensureLoginFragmentDisplayed(forceReplace = false)
+    }
+
+
+    private fun ensureLoginFragmentDisplayed(forceReplace: Boolean) {
+        val currentFragment = supportFragmentManager.findFragmentById(R.id.frameContainer)
+        if (forceReplace || currentFragment == null) {
+            supportFragmentManager.beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.frameContainer, LoginFragment(), ActionEnum.LOGIN.toString())
+                .commitAllowingStateLoss()
         }
     }
 

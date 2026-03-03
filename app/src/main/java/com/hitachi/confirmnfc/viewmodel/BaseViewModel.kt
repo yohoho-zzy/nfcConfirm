@@ -84,7 +84,11 @@ open class BaseViewModel(context: Activity) : ViewModel() {
             }
         }
 
-        fragmentTransaction.commit()
+        if (fragmentManager.isStateSaved) {
+            fragmentTransaction.commitAllowingStateLoss()
+        } else {
+            fragmentTransaction.commit()
+        }
         previousAction = currentAction
         currentAction = to
         setCurrentView()
