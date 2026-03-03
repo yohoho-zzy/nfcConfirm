@@ -64,7 +64,6 @@ class LoginFragment : Fragment() {
         val granted = permissions.all { result[it] == true }
         if (granted) {
             viewModel.applyPhonePermissionResult(true, null)
-            fetchPhoneNumberAsync()
         } else {
             viewModel.applyPhonePermissionResult(false, null)
         }
@@ -95,7 +94,6 @@ class LoginFragment : Fragment() {
             Log.i(TAG, "LoginFragment init. hasPermission=$hasPermission")
             if (hasPermission) {
                 viewModel.init(true, null)
-                fetchPhoneNumberAsync()
             } else {
                 viewModel.init(false, null)
             }
@@ -130,19 +128,25 @@ class LoginFragment : Fragment() {
                 }
 
                 LoginCommand.OpenPermissionSettings -> openAppPermissionSettings()
+                LoginCommand.FetchPhoneNumber -> fetchPhoneNumberAndLoginAsync()
                 null -> Unit
             }
             viewModel.consumeCommand()
         }
     }
 
-    private fun fetchPhoneNumberAsync() {
+    private fun fetchPhoneNumberAndLoginAsync() {
+        if (!hasPhonePermission()) {
+            viewModel.applyPhonePermissionResult(false, null)
+            return
+        }
+
         viewLifecycleOwner.lifecycleScope.launch {
             val phoneNumber = withContext(Dispatchers.IO) {
                 readPhoneNumberOrNull()
             }
             Log.i(TAG, "Phone number loaded. hasValue=${!phoneNumber.isNullOrBlank()}")
-            viewModel.applyPhonePermissionResult(true, phoneNumber)
+            viewModel.onPhoneNumberFetched(phoneNumber)
         }
     }
 

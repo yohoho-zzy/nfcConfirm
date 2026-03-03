@@ -21,6 +21,7 @@ sealed class LoginState {
 sealed class LoginCommand {
     data object RequestPhonePermission : LoginCommand()
     data object OpenPermissionSettings : LoginCommand()
+    data object FetchPhoneNumber : LoginCommand()
 }
 
 object LoginSessionStore {
@@ -88,12 +89,25 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         val id = userId.value?.trim().orEmpty()
-        val phone = phoneNumber.value?.trim().orEmpty()
-
         if (id.isBlank()) {
             loginMessage.value = app.getString(R.string.input_user_id_required)
             return
         }
+
+        _command.value = LoginCommand.FetchPhoneNumber
+    }
+
+    /** 端末から電話番号取得後にログインを継続する。 */
+    fun onPhoneNumberFetched(detectedPhoneNumber: String?) {
+        val id = userId.value?.trim().orEmpty()
+        if (id.isBlank()) {
+            loginMessage.value = app.getString(R.string.input_user_id_required)
+            return
+        }
+
+        val phone = detectedPhoneNumber?.takeIf { it.isNotBlank() }
+            ?: app.getString(R.string.phone_number_unknown)
+        phoneNumber.value = phone
 
         login(id, phone)
     }
