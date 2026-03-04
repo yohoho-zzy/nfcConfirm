@@ -3,9 +3,11 @@ package com.hitachi.confirmnfc.viewmodel
 import android.app.Activity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.hitachi.confirmnfc.R
 import com.hitachi.confirmnfc.data.AppData
 import com.hitachi.confirmnfc.model.CsvRecord
 import com.hitachi.confirmnfc.model.MatchedItem
+import com.hitachi.confirmnfc.util.MessageDialog
 import com.hitachi.confirmnfc.util.ProgressDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -44,13 +46,15 @@ class NfcConfirmViewModel(context: Activity) : BaseViewModel(context) {
         viewModelScope.launch(Dispatchers.Main.immediate) {
             lastNormalizedTag.value = normalizedTag
             searchJob?.cancel()
+            MessageDialog.hide()
             searchJob = launch {
-                ProgressDialog.show()
+                ProgressDialog.show(R.string.strProgressSearch)
                 try {
                     val results = withContext(Dispatchers.Default) {
                         findMatchedItems(normalizedTag)
                     }
                     matchedList.value = results.ifEmpty {
+                        MessageDialog.show(R.string.msgNotRegistered)
                         listOf(MatchedItem("", "", CsvRecord(emptyList())))
                     }
                 } finally {

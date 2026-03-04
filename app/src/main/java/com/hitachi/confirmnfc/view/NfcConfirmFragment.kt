@@ -7,16 +7,12 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.hitachi.confirmnfc.R
 import com.hitachi.confirmnfc.adapter.NfcInfoAdapter
 import com.hitachi.confirmnfc.databinding.FragmentNfcConfirmBinding
 import com.hitachi.confirmnfc.util.NfcUtil
-import com.hitachi.confirmnfc.data.AppData
-import com.hitachi.confirmnfc.viewmodel.LoginViewModel
 import com.hitachi.confirmnfc.viewmodel.NfcConfirmViewModel
 import com.hitachi.confirmnfc.viewmodel.ViewModelFactory
 

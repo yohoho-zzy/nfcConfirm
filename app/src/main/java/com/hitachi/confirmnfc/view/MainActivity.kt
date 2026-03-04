@@ -1,7 +1,7 @@
 package com.hitachi.confirmnfc.view
 
+import androidx.activity.OnBackPressedCallback
 import android.content.Context
-import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.hitachi.confirmnfc.R
 import com.hitachi.confirmnfc.data.AppData
 import com.hitachi.confirmnfc.enums.ActionEnum
+import com.hitachi.confirmnfc.util.MessageDialog
 import com.hitachi.confirmnfc.util.ProgressDialog
 import com.hitachi.confirmnfc.viewmodel.MainViewModel
 import com.hitachi.confirmnfc.viewmodel.ViewModelFactory
@@ -35,10 +36,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         ProgressDialog.init(this)
+        MessageDialog.init(this)
         Log.d(TAG, "onCreate savedInstanceState=${savedInstanceState != null}")
         mainViewModel.configureNavigator(supportFragmentManager, R.id.frameContainer)
         ensureInitialLoginPage()
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+            }
+        })
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
@@ -46,6 +51,9 @@ class MainActivity : AppCompatActivity() {
             currentFocus?.let { hideKeyboardIfNeeded(it, ev) }
         }
         return super.dispatchTouchEvent(ev)
+    }
+
+    override fun onBackPressed() {
     }
 
     /**

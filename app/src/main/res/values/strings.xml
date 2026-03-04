@@ -23,5 +23,6 @@
     <string name="strNfcInfo">NFC番号: %1$s</string>
     <string name="labelName">得意先名</string>
     <string name="labelCode">得意先コード</string>
-    <string name="msgNotRegistered">登録がありません。</string>
+    <string name="strProgressSearch">得意先情報検索中</string>
+    <string name="msgNotRegistered">登録がありません</string>
 </resources>
