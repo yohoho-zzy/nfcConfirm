@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.hitachi.confirmnfc.data.AppData
 import com.hitachi.confirmnfc.R
 import com.hitachi.confirmnfc.enums.ActionEnum
+import com.hitachi.confirmnfc.model.CsvRecord
 import com.hitachi.confirmnfc.repository.LoginRepository
 import com.hitachi.confirmnfc.util.ProgressDialog
 import kotlinx.coroutines.launch
@@ -82,6 +83,13 @@ class LoginViewModel(context: Activity) : BaseViewModel(context) {
             result.onSuccess {
                 AppData.csvRecords = it
                 loginMessage.value = app.getString(R.string.msgLoginSuccess)
+//                AppData.csvRecords += listOf(
+//                    CsvRecord(listOf("992147B1", "A薬局", "A0001")),
+//                    CsvRecord(listOf("992147B1", "B薬局", "B0001")),
+//                    CsvRecord(listOf("992147B1", "C薬局", "C0001")),
+//                    CsvRecord(listOf("992147B1", "D薬局", "D0001")),
+//                    CsvRecord(listOf("992147B1", "E薬局", "E0001"))
+//                )
                 changeFragment(ActionEnum.NFC_CONFIRM)
                 ProgressDialog.hide()
             }.onFailure {

@@ -11,7 +11,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.concurrent.atomic.AtomicLong
 import java.util.Locale
 
 /**
@@ -21,9 +20,6 @@ class NfcConfirmViewModel(context: Activity) : BaseViewModel(context) {
 
     /** NFC照合処理の実行ジョブ */
     private var searchJob: Job? = null
-
-    /** 最新検索リクエストID */
-    private val latestRequestId = AtomicLong(0)
 
     /** 検索結果 */
     val matchedList = MutableLiveData(
@@ -45,11 +41,8 @@ class NfcConfirmViewModel(context: Activity) : BaseViewModel(context) {
      */
     fun onTagRead(tagHex: String) {
         val normalizedTag = normalizeKey(tagHex)
-
         viewModelScope.launch(Dispatchers.Main.immediate) {
             lastNormalizedTag.value = normalizedTag
-
-            val requestId = latestRequestId.incrementAndGet()
             searchJob?.cancel()
             searchJob = launch {
                 ProgressDialog.show()
@@ -57,30 +50,21 @@ class NfcConfirmViewModel(context: Activity) : BaseViewModel(context) {
                     val results = withContext(Dispatchers.Default) {
                         findMatchedItems(normalizedTag)
                     }
-
-                    if (requestId != latestRequestId.get()) return@launch
-
-                    matchedList.value = if (results.isEmpty()) {
+                    matchedList.value = results.ifEmpty {
                         listOf(MatchedItem("", "", CsvRecord(emptyList())))
-                    } else {
-                        results
                     }
                 } finally {
-                    if (requestId == latestRequestId.get()) {
-                        ProgressDialog.hide()
-                    }
+                    ProgressDialog.hide()
                 }
             }
         }
-
-        return results
     }
 
     /** CSV一覧を検索して一致項目を返す。 */
     private fun findMatchedItems(normalizedTag: String): List<MatchedItem> {
         val indexTag = 0
-        val indexName = 2
-        val indexCode = 1
+        val indexName = 1
+        val indexCode = 2
 
         val snapshot = AppData.csvRecords.toList()
         val results = mutableListOf<MatchedItem>()
