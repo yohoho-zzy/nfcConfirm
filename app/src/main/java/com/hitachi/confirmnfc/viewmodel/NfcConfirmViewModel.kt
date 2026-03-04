@@ -72,6 +72,8 @@ class NfcConfirmViewModel(context: Activity) : BaseViewModel(context) {
                 }
             }
         }
+
+        return results
     }
 
     /** CSV一覧を検索して一致項目を返す。 */
