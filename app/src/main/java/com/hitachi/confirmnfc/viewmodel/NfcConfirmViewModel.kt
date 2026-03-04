@@ -7,13 +7,23 @@ import com.hitachi.confirmnfc.data.AppData
 import com.hitachi.confirmnfc.model.CsvRecord
 import com.hitachi.confirmnfc.model.MatchedItem
 import com.hitachi.confirmnfc.util.ProgressDialog
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.concurrent.atomic.AtomicLong
 import java.util.Locale
 
 /**
  * NFC確認画面の状態を保持するViewModel。
  */
 class NfcConfirmViewModel(context: Activity) : BaseViewModel(context) {
+
+    /** NFC照合処理の実行ジョブ */
+    private var searchJob: Job? = null
+
+    /** 最新検索リクエストID */
+    private val latestRequestId = AtomicLong(0)
 
     /** 検索結果 */
     val matchedList = MutableLiveData(
@@ -35,41 +45,61 @@ class NfcConfirmViewModel(context: Activity) : BaseViewModel(context) {
      */
     fun onTagRead(tagHex: String) {
         val normalizedTag = normalizeKey(tagHex)
-        lastNormalizedTag.postValue(normalizedTag)
-        viewModelScope.launch {
+        lastNormalizedTag.value = normalizedTag
+
+        val requestId = latestRequestId.incrementAndGet()
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
             ProgressDialog.show()
-            val indexTag = 0
-            val indexName = 2
-            val indexCode = 1
+            try {
+                val results = withContext(Dispatchers.Default) {
+                    findMatchedItems(normalizedTag)
+                }
 
-            val results = mutableListOf<MatchedItem>()
+                if (requestId != latestRequestId.get()) return@launch
 
-            for (record in AppData.csvRecords) {
-                val cols = record.columns
-                if (cols.isEmpty()) continue
-
-                val isMatched = normalizeKey(cols.getOrNull(indexTag) ?: "") == normalizedTag
-                if (!isMatched) continue
-
-                val nameValue = cols.getOrNull(indexName).orEmpty().trim()
-                val codeValue = cols.getOrNull(indexCode).orEmpty().trim()
-
-                results.add(
-                    MatchedItem(
-                        nameValue = nameValue,
-                        codeValue = codeValue,
-                        record = record
-                    )
-                )
+                matchedList.value = if (results.isEmpty()) {
+                    listOf(MatchedItem("", "", CsvRecord(emptyList())))
+                } else {
+                    results
+                }
+            } finally {
+                if (requestId == latestRequestId.get()) {
+                    ProgressDialog.hide()
+                }
             }
-
-            if (results.isEmpty()) {
-                matchedList.value = listOf(MatchedItem("", "", CsvRecord(emptyList())))
-            } else {
-                matchedList.value = results
-            }
-            ProgressDialog.hide()
         }
+    }
+
+    /** CSV一覧を検索して一致項目を返す。 */
+    private fun findMatchedItems(normalizedTag: String): List<MatchedItem> {
+        val indexTag = 0
+        val indexName = 2
+        val indexCode = 1
+
+        val snapshot = AppData.csvRecords.toList()
+        val results = mutableListOf<MatchedItem>()
+
+        for (record in snapshot) {
+            val cols = record.columns
+            if (cols.isEmpty()) continue
+
+            val isMatched = normalizeKey(cols.getOrNull(indexTag) ?: "") == normalizedTag
+            if (!isMatched) continue
+
+            val nameValue = cols.getOrNull(indexName).orEmpty().trim()
+            val codeValue = cols.getOrNull(indexCode).orEmpty().trim()
+
+            results.add(
+                MatchedItem(
+                    nameValue = nameValue,
+                    codeValue = codeValue,
+                    record = record
+                )
+            )
+        }
+
+        return results
     }
 
     /**
