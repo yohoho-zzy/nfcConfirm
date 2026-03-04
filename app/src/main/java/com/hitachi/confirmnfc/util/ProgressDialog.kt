@@ -1,6 +1,6 @@
 package com.hitachi.confirmnfc.util
 
-import android.graphics.Color
+import android.annotation.SuppressLint
 import android.view.Gravity
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -8,26 +8,28 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.core.graphics.toColorInt
 import com.hitachi.confirmnfc.R
 import com.hitachi.confirmnfc.view.MainActivity
 import java.lang.ref.WeakReference
 
 /**
- * 画面共通で利用する進捗ダイアログ管理クラス。
+ * 画面共通で利用する進捗ダイアログ管理クラス
  */
 class ProgressDialog {
     companion object {
-        /** 表示中ダイアログ。 */
+        /** 表示中ダイアログ */
         private var alertDialog: AlertDialog? = null
 
-        /** メッセージ表示用ラベル。 */
+        /** メッセージ表示用ラベル */
+        @SuppressLint("StaticFieldLeak")
         private var lblMessage: TextView? = null
 
-        /** Activity参照を弱参照で保持する。 */
+        /** Activity参照を弱参照で保持する */
         private var activityRef: WeakReference<MainActivity>? = null
 
         /**
-         * 利用対象Activityを初期化する。
+         * 利用対象Activityを初期化する
          */
         fun init(activity: MainActivity) {
             val current = activityRef?.get()
@@ -38,8 +40,9 @@ class ProgressDialog {
         }
 
         /**
-         * ダイアログUIを生成する。
+         * ダイアログUIを生成する
          */
+        @SuppressLint("ResourceAsColor")
         private fun createProgressDialog(activity: MainActivity) {
             val padding = 30
             val linear = LinearLayout(activity)
@@ -67,7 +70,7 @@ class ProgressDialog {
 
             lblMessage = TextView(activity).apply {
                 text = ""
-                setTextColor(Color.parseColor("#000000"))
+                setTextColor("#000000".toColorInt())
                 textSize = 20F
                 layoutParams = linearParam
             }
@@ -83,9 +86,9 @@ class ProgressDialog {
         }
 
         /**
-         * 進捗ダイアログを表示する。
+         * 進捗ダイアログを表示する
          */
-        fun show(msgId: Int = R.string.progress_default) {
+        fun show(msgId: Int = R.string.strProgressDefault) {
             val activity = activityRef?.get() ?: return
             activity.runOnUiThread {
                 dismissInternal()
@@ -106,7 +109,7 @@ class ProgressDialog {
         }
 
         /**
-         * 進捗ダイアログを非表示にする。
+         * 進捗ダイアログを非表示にする
          */
         fun hide() {
             val activity = activityRef?.get() ?: return
@@ -116,12 +119,12 @@ class ProgressDialog {
         }
 
         /**
-         * ダイアログ表示中かを返す。
+         * ダイアログ表示中かを返す
          */
         fun isShowing(): Boolean = alertDialog?.isShowing == true
 
         /**
-         * 内部ダイアログ参照を破棄する。
+         * 内部ダイアログ参照を破棄する
          */
         private fun dismissInternal() {
             alertDialog?.dismiss()

@@ -82,14 +82,14 @@ class LoginFragment : Fragment() {
             permissionLauncher.launch(permissions)
         }
 
-        // ログインボタン
+        // ログインボタン押下
         binding.loginButton.setOnClickListener {
             if (!viewModel.checkOrganizationCode()) {
                 return@setOnClickListener
             }
             fetchPhoneNumberAndLoginAsync()
         }
-        // ログインボタン
+        // 権限設定ボタン押下
         binding.settingButton.setOnClickListener {
             openAppPermissionSettings()
         }
@@ -109,19 +109,17 @@ class LoginFragment : Fragment() {
      */
     private fun fetchPhoneNumberAndLoginAsync() {
         if (!hasPhonePermission()) {
-            // 権限が外れていた場合、UIを「設定へ誘導」状態へ戻す。
             viewModel.applyPhonePermissionResult(false)
             return
         }
         viewLifecycleOwner.lifecycleScope.launch {
-            // 通信開始前に進捗ダイアログを表示する。
-            ProgressDialog.show()
+            ProgressDialog.show(R.string.strProgressLogin)
             val phoneNumber = withContext(Dispatchers.IO) {
                 // 電話番号取得はI/Oスレッドで実行する。
                 readPhoneNumberOrNull()
             }
-            Log.i(TAG, "Phone number loaded. hasValue=${!phoneNumber.isNullOrBlank()}")
-            // 取得結果をViewModelへ渡し、以降の判定を委譲する。
+            Log.d(TAG, "電話番号=${!phoneNumber.isNullOrBlank()}")
+            // 取得結果をViewModelへ渡し、CSVファイルを取得する
             viewModel.onPhoneNumberFetched(phoneNumber)
         }
     }
@@ -143,24 +141,21 @@ class LoginFragment : Fragment() {
         if (!hasPhonePermission()) return null
 
         val context = requireContext()
-        val telephonyManager =
-            context.getSystemService(TelephonyManager::class.java) ?: return null
+        val telephonyManager = context.getSystemService(TelephonyManager::class.java) ?: return null
 
         return try {
-            withTimeout(1500L) {   // 防止底层 Binder 卡死
+            withTimeout(1500L) {
                 val number = telephonyManager.line1Number
-                number
-                    ?.takeIf { it.isNotBlank() }
-                    ?.trim()
+                number?.takeIf { it.isNotBlank() }?.trim()
             }
         } catch (e: SecurityException) {
-            Log.w(TAG, "No permission to read phone number", e)
+            Log.d(TAG, "No permission to read phone number", e)
             null
         } catch (e: TimeoutCancellationException) {
-            Log.w(TAG, "Reading phone number timeout")
+            Log.d(TAG, "Reading phone number timeout")
             null
         } catch (e: Exception) {
-            Log.w(TAG, "Unexpected error reading phone number", e)
+            Log.d(TAG, "Unexpected error reading phone number", e)
             null
         }
     }

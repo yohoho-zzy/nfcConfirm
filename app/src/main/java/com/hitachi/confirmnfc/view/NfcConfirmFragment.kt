@@ -9,36 +9,32 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.hitachi.confirmnfc.R
+import com.hitachi.confirmnfc.adapter.NfcInfoAdapter
 import com.hitachi.confirmnfc.databinding.FragmentNfcConfirmBinding
 import com.hitachi.confirmnfc.util.NfcUtil
-import com.hitachi.confirmnfc.AppData
+import com.hitachi.confirmnfc.data.AppData
+import com.hitachi.confirmnfc.viewmodel.LoginViewModel
 import com.hitachi.confirmnfc.viewmodel.NfcConfirmViewModel
 import com.hitachi.confirmnfc.viewmodel.ViewModelFactory
 
 /**
- * NFC読み取り結果を表示する画面Fragment。
+ * NFC読み取り結果を表示する画面Fragment
  */
 class NfcConfirmFragment : Fragment() {
 
-    companion object {
-        /** Fragment生成用のファクトリメソッド。 */
-        @JvmStatic
-        fun newInstance(): NfcConfirmFragment = NfcConfirmFragment()
-    }
-
-    /** ViewBindingの退避領域。 */
+    /** Binding */
     private var _binding: FragmentNfcConfirmBinding? = null
-
-    /** null非許容で使うBinding参照。 */
     private val binding get() = _binding!!
 
-    /** 画面状態を管理するViewModel。 */
-    private val viewModel: NfcConfirmViewModel by activityViewModels {
-        ViewModelFactory(requireActivity())
+    /** ViewModel */
+    private val viewModel by lazy {
+        ViewModelProvider(this, ViewModelFactory(requireActivity()))[NfcConfirmViewModel::class.java]
     }
 
-    /** NFC ReaderModeを扱うユーティリティ。 */
+    /** NFC ReaderModeを扱うユーティリティ */
     private var nfcUtil: NfcUtil? = null
 
     /**
@@ -50,26 +46,21 @@ class NfcConfirmFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_nfc_confirm, container, false)
+        binding.lifecycleOwner = viewLifecycleOwner
         binding.nfcViewModel = viewModel
 
         viewModel.init()
         nfcUtil = NfcUtil(requireActivity())
-        return binding.root
-    }
 
-    /**
-     * 表示後にライフサイクル所有者を設定し、未ログインならログイン画面へ戻す。
-     */
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        binding.lifecycleOwner = viewLifecycleOwner
+        val adapter = NfcInfoAdapter()
+        binding.infoList.layoutManager = LinearLayoutManager(requireContext())
+        binding.infoList.adapter = adapter
 
-        if (AppData.csvRecords.isEmpty()) {
-            parentFragmentManager.commit {
-                setReorderingAllowed(true)
-                replace(R.id.frameContainer, LoginFragment())
-            }
+        viewModel.matchedList.observe(viewLifecycleOwner) {
+            adapter.submitList(it)
         }
+
+        return binding.root
     }
 
     /**
@@ -77,7 +68,6 @@ class NfcConfirmFragment : Fragment() {
      */
     override fun onResume() {
         super.onResume()
-        if (AppData.csvRecords.isEmpty()) return
 
         nfcUtil?.start(
             onRead = { tag ->

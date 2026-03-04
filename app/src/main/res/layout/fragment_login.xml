@@ -30,7 +30,7 @@
                 android:text="@string/titleOrganizationCode"
                 android:gravity="center"
                 android:textSize="24sp"
-                android:textColor="@color/text"
+                android:textColor="@android:color/black"
                 android:textStyle="bold"
                 android:layout_marginBottom="40dp"/>
 
@@ -58,11 +58,11 @@
                 android:id="@+id/loginButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/button"
+                android:backgroundTint="@color/bg_button"
                 android:text="@string/strBtnLogin"
                 android:layout_marginTop="30dp"
                 android:paddingVertical="12dp"
-                android:textColor="@color/button_text"
+                android:textColor="@android:color/white"
                 android:textSize="24sp"
                 android:textStyle="bold"
                 android:visibility="@{!loginViewModel.phonePermissionDenied ? View.VISIBLE : View.GONE}"/>
@@ -71,11 +71,11 @@
                 android:id="@+id/settingButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/button"
+                android:backgroundTint="@color/bg_button"
                 android:text="@string/strBtnSetting"
                 android:layout_marginTop="30dp"
                 android:paddingVertical="12dp"
-                android:textColor="@color/button_text"
+                android:textColor="@android:color/white"
                 android:textSize="24sp"
                 android:textStyle="bold"
                 android:visibility="@{loginViewModel.phonePermissionDenied ? View.VISIBLE : View.GONE}"/>

@@ -5,16 +5,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
 /**
- * Activityコンテキストを注入してViewModelを生成するFactory。
+ * Activityコンテキストを注入してViewModelを生成するFactory
  */
 class ViewModelFactory(
-    /** ViewModel生成時に渡すActivity。 */
     private val context: Activity
 ) : ViewModelProvider.Factory {
 
-    /**
-     * 要求されたViewModel型に応じてインスタンスを返す。
-     */
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when {
             modelClass.isAssignableFrom(MainViewModel::class.java) -> MainViewModel(context) as T

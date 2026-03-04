@@ -53,11 +53,7 @@ class NfcUtil(context: Context) {
                 lastReadAtMs = now
                 onRead(tag)
             },
-            NfcAdapter.FLAG_READER_NFC_A or
-                NfcAdapter.FLAG_READER_NFC_B or
-                NfcAdapter.FLAG_READER_NFC_F or
-                NfcAdapter.FLAG_READER_NFC_V or
-                NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK,
+            NfcAdapter.FLAG_READER_NFC_A,
             Bundle().apply {
                 putInt(NfcAdapter.EXTRA_READER_PRESENCE_CHECK_DELAY, 1000)
             }

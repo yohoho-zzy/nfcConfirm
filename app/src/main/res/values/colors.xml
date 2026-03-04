@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="message_text">#FF0000</color>
-    <color name="button">#1165D7</color>
-    <color name="button_text">#FFFFFF</color>
-    <color name="text">#000000</color>
+    <color name="bg_button">#1165D7</color>
+    <color name="bg_border">#D4D4D4</color>
+    <color name="bg_item_csv">#E2EFDA</color>
 </resources>

@@ -12,7 +12,7 @@ import java.net.URL
 import java.util.Base64
 
 /**
- * ログイン時にCSVデータを取得するRepositoryクラス。
+ * ログイン時にCSVデータを取得するRepositoryクラス
  *
  * 主な処理:
  * - CloudFront上のCSVへBasic認証付きでアクセス
@@ -20,21 +20,20 @@ import java.util.Base64
  * - CSVを1行ずつ `CsvRecord` へ変換して返却
  */
 class LoginRepository(
-    /** エラーメッセージ取得に使うContext。 */
+    /** エラーメッセージ取得に使うContext */
     private val context: Context
 ) {
 
-    /** 取得対象CSVのURL。 */
+    /** 取得対象CSVのURL */
     private val csvUrl = "https://d2kkch5g6rdzfp.cloudfront.net/abcdefg.csv"
 
     /**
-     * CSVデータを取得してパース結果を返す。
+     * CSVデータを取得してパース結果を返す
      */
     suspend fun fetchCsv(
         userId: String,
         phoneNumber: String
     ): Result<List<CsvRecord>> = withContext(Dispatchers.IO) {
-        // 一時的な通信障害を考慮し、最大3回リトライする。
         val maxRetry = 3
 
         repeat(maxRetry) { index ->
@@ -66,32 +65,30 @@ class LoginRepository(
                             )
                         }
 
-                    // レコードが1件以上あれば成功として返却する。
+                    // レコードが1件以上あれば成功として返却する
                     if (records.isNotEmpty()) {
                         return@withContext Result.success(records)
                     }
 
-                    // 正常レスポンスだがデータが空の場合は業務エラーとする。
+                    // 正常レスポンスだがデータが空の場合は業務エラーとする
                     return@withContext Result.failure(
                         IllegalStateException(
-                            context.getString(R.string.csv_empty)
+                            context.getString(R.string.msgCsvEmpty)
                         )
                     )
                 }
-            } catch (_: Exception) {
-                // 通信失敗時はリトライで吸収する。
-            }
+            } catch (_: Exception) { }
 
-            // 最終試行以外は少し待ってから再試行する。
+            // 最終試行以外は少し待ってから再試行する
             if (index < maxRetry - 1) {
                 delay(1500)
             }
         }
 
-        // すべての試行が失敗した場合の最終エラー。
+        // すべての試行が失敗した場合の最終エラー
         Result.failure(
             IllegalStateException(
-                context.getString(R.string.csv_fetch_failed)
+                context.getString(R.string.msgCsvFetchFailed)
             )
         )
     }
