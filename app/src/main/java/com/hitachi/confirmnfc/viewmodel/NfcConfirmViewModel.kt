@@ -45,30 +45,35 @@ class NfcConfirmViewModel(context: Activity) : BaseViewModel(context) {
      */
     fun onTagRead(tagHex: String) {
         val normalizedTag = normalizeKey(tagHex)
-        lastNormalizedTag.value = normalizedTag
 
-        val requestId = latestRequestId.incrementAndGet()
-        searchJob?.cancel()
-        searchJob = viewModelScope.launch {
-            ProgressDialog.show()
-            try {
-                val results = withContext(Dispatchers.Default) {
-                    findMatchedItems(normalizedTag)
-                }
+        viewModelScope.launch(Dispatchers.Main.immediate) {
+            lastNormalizedTag.value = normalizedTag
 
-                if (requestId != latestRequestId.get()) return@launch
+            val requestId = latestRequestId.incrementAndGet()
+            searchJob?.cancel()
+            searchJob = launch {
+                ProgressDialog.show()
+                try {
+                    val results = withContext(Dispatchers.Default) {
+                        findMatchedItems(normalizedTag)
+                    }
 
-                matchedList.value = if (results.isEmpty()) {
-                    listOf(MatchedItem("", "", CsvRecord(emptyList())))
-                } else {
-                    results
-                }
-            } finally {
-                if (requestId == latestRequestId.get()) {
-                    ProgressDialog.hide()
+                    if (requestId != latestRequestId.get()) return@launch
+
+                    matchedList.value = if (results.isEmpty()) {
+                        listOf(MatchedItem("", "", CsvRecord(emptyList())))
+                    } else {
+                        results
+                    }
+                } finally {
+                    if (requestId == latestRequestId.get()) {
+                        ProgressDialog.hide()
+                    }
                 }
             }
         }
+
+        return results
     }
 
     /** CSV一覧を検索して一致項目を返す。 */
