@@ -4,21 +4,24 @@ import android.app.Activity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.hitachi.confirmnfc.R
-import com.hitachi.confirmnfc.data.AppData
+import com.hitachi.confirmnfc.data.local.AppDatabase
+import com.hitachi.confirmnfc.data.local.CsvRowEntity
 import com.hitachi.confirmnfc.model.CsvRecord
 import com.hitachi.confirmnfc.model.MatchedItem
+import com.hitachi.confirmnfc.util.CsvKeyNormalizer
 import com.hitachi.confirmnfc.util.MessageDialog
 import com.hitachi.confirmnfc.util.ProgressDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.Locale
 
 /**
  * NFC確認画面の状態を保持するViewModel。
  */
 class NfcConfirmViewModel(context: Activity) : BaseViewModel(context) {
+
+    private val csvDao = AppDatabase.getInstance(context.applicationContext).csvDao()
 
     /** NFC照合処理の実行ジョブ */
     private var searchJob: Job? = null
@@ -50,7 +53,7 @@ class NfcConfirmViewModel(context: Activity) : BaseViewModel(context) {
             searchJob = launch {
                 ProgressDialog.show(R.string.strProgressSearch)
                 try {
-                    val results = withContext(Dispatchers.Default) {
+                    val results = withContext(Dispatchers.IO) {
                         findMatchedItems(normalizedTag)
                     }
                     matchedList.value = results.ifEmpty {
@@ -65,42 +68,22 @@ class NfcConfirmViewModel(context: Activity) : BaseViewModel(context) {
     }
 
     /** CSV一覧を検索して一致項目を返す。 */
-    private fun findMatchedItems(normalizedTag: String): List<MatchedItem> {
-        val indexTag = 0
-        val indexName = 1
-        val indexCode = 2
-
-        val snapshot = AppData.csvRecords.toList()
-        val results = mutableListOf<MatchedItem>()
-
-        for (record in snapshot) {
-            val cols = record.columns
-            if (cols.isEmpty()) continue
-
-            val isMatched = normalizeKey(cols.getOrNull(indexTag) ?: "") == normalizedTag
-            if (!isMatched) continue
-
-            val nameValue = cols.getOrNull(indexName).orEmpty().trim()
-            val codeValue = cols.getOrNull(indexCode).orEmpty().trim()
-
-            results.add(
-                MatchedItem(
-                    nameValue = nameValue,
-                    codeValue = codeValue,
-                    record = record
-                )
-            )
-        }
-
-        return results
+    private suspend fun findMatchedItems(normalizedTag: String): List<MatchedItem> {
+        return csvDao.findByTagKey(normalizedTag).map { row -> row.toMatchedItem() }
     }
 
     /**
      * NFCキー比較のため文字列を正規化する。
      */
     private fun normalizeKey(value: String): String {
-        return value.trim()
-            .replace(Regex("[^0-9A-Fa-f]"), "")
-            .uppercase(Locale.US)
+        return CsvKeyNormalizer.normalize(value)
+    }
+
+    private fun CsvRowEntity.toMatchedItem(): MatchedItem {
+        return MatchedItem(
+            nameValue = nameValue,
+            codeValue = codeValue,
+            record = CsvRecord(emptyList())
+        )
     }
 }

@@ -84,7 +84,7 @@ class MainActivity : AppCompatActivity() {
      */
     private fun ensureInitialLoginPage() {
         val currentFragment = supportFragmentManager.findFragmentById(R.id.frameContainer)
-        val shouldForceLogin = AppData.csvRecords.isEmpty() && currentFragment !is LoginFragment
+        val shouldForceLogin = !AppData.isLoggedIn && currentFragment !is LoginFragment
         if (currentFragment == null || shouldForceLogin) {
             supportFragmentManager.beginTransaction()
                 .setReorderingAllowed(true)
