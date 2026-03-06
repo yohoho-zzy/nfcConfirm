@@ -28,7 +28,7 @@ class LoginRepository(
     private val csvDao = AppDatabase.getInstance(context).csvDao()
 
     /** 取得対象CSVのURL */
-    private val csvUrl = "https://d2kkch5g6rdzfp.cloudfront.net/abcdefg.csv"
+    private val csvUrl = "https://d2kkch5g6rdzfp.cloudfront.net/client_master_formatted_all_locations.csv"
 
     /**
      * CSVデータを取得してパース結果を返す
@@ -67,14 +67,14 @@ class LoginRepository(
                             val cols = line.split(",").map { it.trim() }
                             if (cols.isEmpty()) return@forEach
 
-                            val tagKey = CsvKeyNormalizer.normalize(cols.getOrNull(0).orEmpty())
+                            val tagKey = CsvKeyNormalizer.normalize(cols.getOrNull(5).orEmpty())
                             if (tagKey.isBlank()) return@forEach
 
                             chunk.add(
                                 CsvRowEntity(
                                     tagKey = tagKey,
-                                    nameValue = cols.getOrNull(1).orEmpty().trim(),
-                                    codeValue = cols.getOrNull(2).orEmpty().trim()
+                                    nameValue = cols.getOrNull(4).orEmpty().trim(),
+                                    codeValue = cols.getOrNull(3).orEmpty().trim()
                                 )
                             )
 
