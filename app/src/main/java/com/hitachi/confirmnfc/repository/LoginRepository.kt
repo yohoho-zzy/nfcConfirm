@@ -2,11 +2,12 @@ package com.hitachi.confirmnfc.repository
 
 import android.content.Context
 import com.hitachi.confirmnfc.R
-import com.hitachi.confirmnfc.model.CsvRecord
+import com.hitachi.confirmnfc.data.local.AppDatabase
+import com.hitachi.confirmnfc.data.local.CsvRowEntity
+import com.hitachi.confirmnfc.util.CsvKeyNormalizer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import java.io.BufferedReader
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.Base64
@@ -17,12 +18,14 @@ import java.util.Base64
  * 主な処理:
  * - CloudFront上のCSVへBasic認証付きでアクセス
  * - 通信失敗時は最大3回までリトライ
- * - CSVを1行ずつ `CsvRecord` へ変換して返却
+ * - CSVを1行ずつ解析してRoomへ逐次保存
  */
 class LoginRepository(
     /** エラーメッセージ取得に使うContext */
     private val context: Context
 ) {
+
+    private val csvDao = AppDatabase.getInstance(context).csvDao()
 
     /** 取得対象CSVのURL */
     private val csvUrl = "https://d2kkch5g6rdzfp.cloudfront.net/abcdefg.csv"
@@ -33,7 +36,7 @@ class LoginRepository(
     suspend fun fetchCsv(
         userId: String,
         phoneNumber: String
-    ): Result<List<CsvRecord>> = withContext(Dispatchers.IO) {
+    ): Result<Unit> = withContext(Dispatchers.IO) {
         val maxRetry = 3
 
         repeat(maxRetry) { index ->
@@ -54,28 +57,46 @@ class LoginRepository(
                 val code = connection.responseCode
 
                 if (code in 200..299) {
-                    // レスポンス本文をCSVとして読み取り、空行を除外する。
-                    val records = connection.inputStream
-                        .bufferedReader()
-                        .use(BufferedReader::readLines)
-                        .filter { it.isNotBlank() }
-                        .map { line ->
-                            CsvRecord(
-                                line.split(",").map { it.trim() }
-                            )
-                        }
+                    csvDao.clearAll()
+                    var inserted = 0
+                    val chunk = ArrayList<CsvRowEntity>(1000)
 
-                    // レコードが1件以上あれば成功として返却する
-                    if (records.isNotEmpty()) {
-                        return@withContext Result.success(records)
+                    connection.inputStream.bufferedReader().use { reader ->
+                        reader.lineSequence().forEach { line ->
+                            if (line.isBlank()) return@forEach
+                            val cols = line.split(",").map { it.trim() }
+                            if (cols.isEmpty()) return@forEach
+
+                            val tagKey = CsvKeyNormalizer.normalize(cols.getOrNull(0).orEmpty())
+                            if (tagKey.isBlank()) return@forEach
+
+                            chunk.add(
+                                CsvRowEntity(
+                                    tagKey = tagKey,
+                                    nameValue = cols.getOrNull(1).orEmpty().trim(),
+                                    codeValue = cols.getOrNull(2).orEmpty().trim()
+                                )
+                            )
+
+                            if (chunk.size >= 1000) {
+                                csvDao.insertAll(chunk)
+                                inserted += chunk.size
+                                chunk.clear()
+                            }
+                        }
                     }
 
-                    // 正常レスポンスだがデータが空の場合は業務エラーとする
-                    return@withContext Result.failure(
-                        IllegalStateException(
-                            context.getString(R.string.msgCsvEmpty)
-                        )
-                    )
+                    if (chunk.isNotEmpty()) {
+                        csvDao.insertAll(chunk)
+                        inserted += chunk.size
+                        chunk.clear()
+                    }
+
+                    if (inserted > 0) {
+                        return@withContext Result.success(Unit)
+                    }
+
+                    return@withContext Result.failure(IllegalStateException(context.getString(R.string.msgCsvEmpty)))
                 }
             } catch (_: Exception) { }
 
