@@ -67,7 +67,6 @@ class LoginViewModel(context: Activity) : BaseViewModel(context) {
         } else {
             // 電話番号未取得時はユーザーへ再確認を促す
             loginMessage.value = app.getString(R.string.msgPhoneNumberUnknown)
-            login("","")
             ProgressDialog.hide()
         }
     }
@@ -78,7 +77,7 @@ class LoginViewModel(context: Activity) : BaseViewModel(context) {
     private fun login(userId: String, phoneNumber: String) {
         viewModelScope.launch {
             loginMessage.value = ""
-            val result = repository.fetchCsv("Hitachi#123#ksk", "09012345678")
+            val result = repository.fetchCsv(userId, phoneNumber)
 
             result.onSuccess {
                 AppData.isLoggedIn = true
