@@ -2,6 +2,7 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data>
+        <import type="android.view.View" />
         <variable
             name="item"
             type="com.hitachi.confirmnfc.model.MatchedItem"/>
@@ -18,56 +19,75 @@
         <!-- name -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:orientation="horizontal">
 
             <TextView
-                android:layout_width="150dp"
-                android:layout_height="wrap_content"
+                android:layout_width="130dp"
+                android:layout_height="match_parent"
                 android:text="@string/labelName"
                 android:background="@color/bg_item_csv"
+                android:gravity="center_vertical"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="@android:color/black"
-                android:padding="6dp"/>
+                android:padding="8dp"/>
 
             <TextView
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:text="@{item.nameValue}"
                 android:background="@color/bg_item_csv"
+                android:gravity="center_vertical"
                 android:textSize="18sp"
+                android:padding="8dp"
+                android:layout_marginStart="4dp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:visibility="@{item.nameValue.length > 10 ? View.GONE : View.VISIBLE}"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="@{item.nameValue}"
+                android:background="@color/bg_item_csv"
+                android:gravity="center_vertical"
+                android:textSize="14sp"
                 android:padding="6dp"
                 android:layout_marginStart="4dp"
                 android:textStyle="bold"
-                android:textColor="@android:color/black"/>
+                android:textColor="@android:color/black"
+                android:visibility="@{item.nameValue.length > 10 ? View.VISIBLE : View.GONE}"/>
         </LinearLayout>
 
         <!-- code -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:orientation="horizontal"
             android:layout_marginTop="6dp">
 
             <TextView
-                android:layout_width="150dp"
-                android:layout_height="wrap_content"
+                android:layout_width="130dp"
+                android:layout_height="match_parent"
                 android:text="@string/labelCode"
                 android:background="@color/bg_item_csv"
+                android:gravity="center_vertical"
                 android:textSize="18sp"
-                android:padding="6dp"
+                android:padding="8dp"
                 android:textColor="@android:color/black"/>
 
             <TextView
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:text="@{item.codeValue}"
                 android:background="@color/bg_item_csv"
+                android:gravity="center_vertical"
                 android:textSize="18sp"
-                android:padding="6dp"
+                android:padding="8dp"
                 android:layout_marginStart="4dp"
                 android:textColor="@android:color/black"/>
         </LinearLayout>
